@@ -1,0 +1,35 @@
+#dump_r ul {
+	list-style: none;
+	padding: 0 0 0 15px;
+	margin: 0;
+}
+
+#dump_r li {
+	margin-bottom: 2px;
+}
+
+#dump_r .excol {
+	font-size: 8pt;
+	position: absolute;
+	margin: 1px 0 0 -15px;
+	cursor: pointer;
+}
+
+#dump_r .expanded > .excol			{font-size: 10pt;}		/* for FF */
+#dump_r .expanded > .excol:after	{content: "\25BC";}
+#dump_r .collapsed > .excol:after	{content: "\25B6";}
+#dump_r .collapsed > ul				{display: none;}
+
+#dump_r .lbl					{position: relative;}
+#dump_r .lbl > *				{display: inline-block;}
+#dump_r .key					{font-weight: bold; width: 130px;}
+#dump_r .val					{margin-right: 5px;}
+#dump_r .xtra					{color: #666666; margin-right: 5px;}
+
+#dump_r .array		> .lbl .val {background-color: #FFD8DE;}
+#dump_r .object		> .lbl .val {background-color: #98FB98;}
+#dump_r .boolean	> .lbl .val {background-color: #ADD8E6;}
+#dump_r .null		> .lbl .val {background-color: #FFD782;}
+#dump_r .integer	> .lbl .val {background-color: #F4A1F4;}
+#dump_r .float		> .lbl .val {background-color: #FF6FCC;}
+#dump_r .string		> .lbl .val {background-color: #FFAAAA;}
