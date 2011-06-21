@@ -37,3 +37,4 @@
 #dump_r .integer	> .lbl .val {background-color: #F4A1F4;}
 #dump_r .float		> .lbl .val {background-color: #FF6FCC;}
 #dump_r .string		> .lbl .val {background-color: #FFAAAA;}
+#dump_r .resource	> .lbl .val {background-color: #CEFF45;}

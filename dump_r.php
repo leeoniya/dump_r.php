@@ -20,6 +20,10 @@ class dump_r {
 		$buf .= $st ? '<pre id="dump_r"><ul>' : '';
 		$t = self::checkType($inp);
 		$v = is_array($inp) ? '[ ]' : (is_object($inp) ? '{ }' : $inp);
+		if (is_resource($v)) {
+			preg_match('/#\d+/', (string)$inp, $matches);
+			$v = $matches[0];
+		}
 		$v = $v === TRUE ? 'true' : ($v === FALSE ? 'false' : ($v === NULL ? 'null' : $v));
 		$x = isset($t[1]) ? "<div class=\"xtra\">$t[1]</div>" : '';
 		$excol = is_array($t[2]) && count($t[2]) > 0 ? '<div class="excol"></div>' : null;
@@ -52,15 +56,7 @@ class dump_r {
 		}
 		elseif(is_resource($input)) {
 			$type[0] = 'resource';
-			
-			if(get_resource_type($input) == 'mysql result') {
-				$type[1] = 'mysql';
-				$type[2] = true;
-			}
-			elseif(get_resource_type($input) == 'stream') {
-				$type[1] = 'stream';
-				$type[2] = true;
-			}
+			$type[1] = get_resource_type($input);
 		}
 		elseif(is_object($input)) {
 			$type[0] = 'object';
