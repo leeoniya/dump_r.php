@@ -20,6 +20,8 @@
 	$obj->otherSet = array();
 	$obj->isFull = false;
 	$obj->food = null;
+	$obj->dom = new DOMDocument;
+	$obj->xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>");
 ?>
 
 <!DOCTYPE HTML>
