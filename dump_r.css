@@ -27,8 +27,12 @@
 #dump_r .lbl					{position: relative;}
 #dump_r .lbl > *				{display: inline-block;}
 #dump_r .key					{font-weight: bold; width: 130px;}
-#dump_r .val					{margin-right: 5px;}
-#dump_r .xtra					{color: #666666; margin-right: 5px;}
+#dump_r .val					{margin-right: 5px; min-width: 5px;}
+#dump_r .typ,
+#dump_r .sub,
+#dump_r .len					{color: #666666; margin-right: 5px;}
+
+#dump_r .typ					{display: none;}
 
 #dump_r .array		> .lbl .val {background-color: #FFD8DE;}
 #dump_r .object		> .lbl .val {background-color: #98FB98;}

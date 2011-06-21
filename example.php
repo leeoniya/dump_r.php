@@ -7,6 +7,7 @@
 	
 	$obj->id = 12345;
 	$obj->name = 'test string';
+	$obj->name2 = '';
 	$obj->price = 69.95;
 	$obj->address = new stdClass;
 	$obj->address->street = '111 Any Sreet';

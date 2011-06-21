@@ -19,20 +19,16 @@ class dump_r {
 		$buf = '';
 		$buf .= $st ? '<pre id="dump_r"><ul>' : '';
 		$t = self::checkType($inp);
-		$v = is_array($inp) ? '[ ]' : (is_object($inp) ? '{ }' : $inp);
-		if (is_resource($v)) {
-			preg_match('/#\d+/', (string)$inp, $matches);
-			$v = $matches[0];
-		}
-		$v = $v === TRUE ? 'true' : ($v === FALSE ? 'false' : ($v === NULL ? 'null' : $v));
-		$x = isset($t[1]) ? "<div class=\"xtra\">$t[1]</div>" : '';
-		$excol = is_array($t[2]) && count($t[2]) > 0 ? '<div class="excol"></div>' : null;
-		$exp = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
-		$t[0] .= $v == 'false' ? ' false' : ($v == 'true' ? ' true' : '');
-		$buf .= "<li class=\"$t[0]$exp\">$excol<div class=\"lbl\"><div class=\"key\">$key</div><div class=\"val\">$v</div>$x</div>";
-		if ($t[2]) {
+		$disp = htmlspecialchars($t->disp);
+		$len = !is_null($t->length) ? "<div class=\"len\">{$t->length}</div>" : '';
+		$sub = !is_null($t->subtype) && !is_bool($inp) ? "<div class=\"sub\">{$t->subtype}</div>" : '';
+		$excol = is_array($t->children) && !empty($t->children) ? '<div class="excol"></div>' : '';
+		$exp_state = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
+		$t->subtype = $t->subtype ? ' ' . $t->subtype : $t->subtype;
+		$buf .= "<li class=\"{$t->type}{$t->subtype}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
+		if ($t->children) {
 			$buf .= '<ul>';
-			foreach ($t[2] as $k => $v)
+			foreach ($t->children as $k => $v)
 				$buf .= self::go($v, $k, $exp_lvls - 1, FALSE);
 			$buf .= '</ul>';
 		}
@@ -42,46 +38,74 @@ class dump_r {
 		return $buf;
 	}
 	
-	// tweaked version of checkType() http://jacksleight.com/old/assets/blog/really-shiny/scripts/php-dump.txt
 	// TODO?: get_class_methods()?
 	// TODO?: is_numeric()
 	public static function checkType($input)
 	{
-		$type = array(null, null, false);
+		$type = (object)array(
+			'type'			=> null,
+			'disp'			=> $input,
+			'subtype'		=> null,
+			'length'		=> null,
+			'children'		=> null
+		);
 		
-		if(is_array($input)) {
-			$type[0] = 'array';
-			$type[1] = count($input);
-			$type[2] = $input;
+		if (is_array($input)) {
+			$type->type		= 'array';
+			$type->disp		= '[ ]';
+			$type->children	= $input;
+			$type->length	= count($type->children);
 		}
-		elseif(is_resource($input)) {
-			$type[0] = 'resource';
-			$type[1] = get_resource_type($input);
+		else if (is_resource($input)) {
+			$type->type		= 'resource';
+			$type->subtype	= get_resource_type($input);
+			preg_match('/#\d+/', (string)$input, $matches);
+			$type->disp		= $matches[0];
 		}
-		elseif(is_object($input)) {
-			$type[0] = 'object';
-			$type[1] = get_class($input);
-			$type[2] = get_object_vars($input);
+		else if (is_object($input)) {
+			$type->type		= 'object';
+			$type->disp		= '{ }';
+			$type->subtype	= get_class($input);
+			$type->children	= get_object_vars($input);
+		//	for SimpleXML dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
+		//	$type->length	= count($type->children);
 		}
-		elseif(is_int($input))
-			$type[0] = 'integer';
-		elseif(is_float($input))
-			$type[0] = 'float';
-		elseif(is_string($input)) {
-			$type[0] = 'string';
-			$type[1] = strlen($input);
-			if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input)))
-				$type[2] = (array)$xml;
-			else if (($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input)))
-				$type[2] = (array)$json;
+		else if (is_int($input))
+			$type->type		= 'integer';
+		else if (is_float($input))
+			$type->type		= 'float';
+		else if (is_string($input)) {
+			$type->type		= 'string';
+			$type->length	= strlen($input);
 			
+			// show empty strings as space and length 0
+			if (!$type->length)
+				$type->disp = ' ';
+
+			if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
+				$type->subtype	= 'XML';
+				$type->children = (array)$xml;
+				// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
+				$type->length = null;			
+			}
+			else if (($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
+				// maybe set subtype as JSON [] or JSON {}, will screw up classname
+				$type->subtype	= 'JSON';
+				$type->children = (array)$json;
+				// dont show length of objects, only arrays
+				$type->length = $input{0} == '[' ? count($type->children) : null;
+			}
 		}
-		elseif(is_bool($input))
-			$type[0] = 'boolean';
-		elseif(is_null($input))
-			$type[0] = 'null';
+		else if (is_bool($input)) {
+			$type->type		= 'boolean';
+			$type->disp	= $type->subtype = $input === TRUE ? 'true' : 'false';
+		}
+		else if (is_null($input)) {
+			$type->type		= 'null';
+			$type->disp		= 'null';
+		}
 		else
-			$type[0] = gettype($input);
+			$type->type		= gettype($input);
 		
 		return $type;
 	}
