@@ -70,6 +70,11 @@ class dump_r {
 		elseif(is_string($input)) {
 			$type[0] = 'string';
 			$type[1] = strlen($input);
+			if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input)))
+				$type[2] = (array)$xml;
+			else if (($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input)))
+				$type[2] = (array)$json;
+			
 		}
 		elseif(is_bool($input))
 			$type[0] = 'boolean';

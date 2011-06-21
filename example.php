@@ -23,6 +23,16 @@
 	$obj->dom = new DOMDocument;
 	$obj->xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>");
 	$obj->afile = fopen(__FILE__, 'r');
+	
+	$sub = new stdClass;
+	$sub->a = 'moo';
+	$sub->b = false;
+	$sub->c = array('hello', 'world', 2.98);
+	
+	$obj->json_str_arr = json_encode(array(true,false,null,$sub));
+	$obj->json_str_obj = json_encode($sub);
+	$obj->xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>";
+	
 ?>
 
 <!DOCTYPE HTML>
