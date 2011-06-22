@@ -1,3 +1,7 @@
+#dump_r {
+	clear: both;
+}
+
 #dump_r ul {
 	list-style: none;
 	padding: 0 0 0 15px;
@@ -24,8 +28,13 @@
 #dump_r .collapsed > .excol:after	{content: "\25B6";}
 #dump_r .collapsed > ul				{display: none;}
 
-#dump_r .lbl					{position: relative;}
+#dump_r .lbl					{position: relative; padding-left: 3px;}
 #dump_r .lbl > *				{display: inline-block;}
+
+
+#dump_r li > .lbl					{background-color: #F1F1F1;}
+#dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
+
 #dump_r .key					{font-weight: bold; width: 130px;}
 #dump_r .val					{margin-right: 5px; min-width: 5px;}
 #dump_r .typ,
@@ -42,3 +51,20 @@
 #dump_r .float		> .lbl .val {background-color: #EDCBED;}
 #dump_r .string		> .lbl .val {background-color: #FFBFBF;}
 #dump_r .resource	> .lbl .val {background-color: #E2FF8C;}
+#dump_r .numeric	> .lbl .val {}
+
+/* hide length of empty stuff except numeric eg '0' strings */
+#dump_r .empty:not(.numeric) > .lbl .len {
+	display: none;
+}
+
+/* display empty strings as a gray middle dot */
+#dump_r .empty.string:not(.numeric) > .lbl .val:after {
+	content: "\0387";
+	color: #BBBBBB;
+}
+
+/* hide empty strings completely */
+#dump_r .empty.string:not(.numeric) > .lbl .val {
+	display: none;
+}

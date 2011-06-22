@@ -8,6 +8,9 @@
 	$obj->id = 12345;
 	$obj->name = 'test string';
 	$obj->name2 = '';
+	$obj->name3 = '0';
+	$obj->name4 = 'false';
+	$obj->name5 = 'null';
 	$obj->price = 69.95;
 	$obj->address = new stdClass;
 	$obj->address->street = '111 Any Sreet';
@@ -29,6 +32,7 @@
 	$sub->a = 'moo';
 	$sub->b = false;
 	$sub->c = array('hello', 'world', 2.98);
+	$sub->d = "75";
 	
 	$obj->json_str_arr = json_encode(array(true,false,null,$sub));
 	$obj->json_str_obj = json_encode($sub);

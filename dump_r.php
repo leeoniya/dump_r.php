@@ -9,6 +9,7 @@
 * in HTML
 */
 class dump_r {
+
 	public function __construct($input, $exp_lvls = 1000)
 	{
 		// get the input arg passed to the function
@@ -31,8 +32,10 @@ class dump_r {
 		$sub = !is_null($t->subtype) && !is_bool($inp) ? "<div class=\"sub\">{$t->subtype}</div>" : '';
 		$excol = is_array($t->children) && !empty($t->children) ? '<div class="excol"></div>' : '';
 		$exp_state = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
+		$empty = empty($inp) ? ' empty' : '';
+		$numeric = is_numeric($inp) ? ' numeric' : '';
 		$t->subtype = $t->subtype ? ' ' . $t->subtype : $t->subtype;
-		$buf .= "<li class=\"{$t->type}{$t->subtype}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
+		$buf .= "<li class=\"{$t->type}{$t->subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
 		if ($t->children) {
 			$buf .= '<ul>';
 			foreach ($t->children as $k => $v)
@@ -84,10 +87,6 @@ class dump_r {
 		else if (is_string($input)) {
 			$type->type		= 'string';
 			$type->length	= strlen($input);
-			
-			// show empty strings as space and length 0
-			if (!$type->length)
-				$type->disp = ' ';
 
 			if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
 				$type->subtype	= 'XML';
@@ -105,7 +104,7 @@ class dump_r {
 		}
 		else if (is_bool($input)) {
 			$type->type		= 'boolean';
-			$type->disp	= $type->subtype = $input === TRUE ? 'true' : 'false';
+			$type->disp		= $input ? 'true' : 'false';
 		}
 		else if (is_null($input)) {
 			$type->type		= 'null';
