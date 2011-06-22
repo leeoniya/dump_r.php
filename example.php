@@ -51,6 +51,6 @@
 	<h2>no depth restriction</h2>
 	<?php new dump_r($obj); ?>
 	<h2>with depth restriction</h2>
-	<?php new dump_r($obj, 'root', 1); ?>
+	<?php new dump_r($obj, 1); ?>
 </body>
 </html>

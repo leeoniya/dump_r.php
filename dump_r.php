@@ -9,9 +9,16 @@
 * in HTML
 */
 class dump_r {
-	public function __construct($input, $key = 'root', $exp_lvls = 1000)
+	public function __construct($input, $exp_lvls = 1000)
 	{
-		echo self::go($input, $key, $exp_lvls);
+		// get the input arg passed to the function
+		$src = debug_backtrace();
+		$src = (object)$src[0];
+		$file = file($src->file);
+		$line = $file[$src->line - 1];
+		preg_match('/dump_r\((.+?)(?:,|\);)/', $line, $m);
+		
+		echo self::go($input, $m[1], $exp_lvls);
 	}
 	
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
