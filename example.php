@@ -1,7 +1,11 @@
 <?php
 	include 'dump_r.php';
 	
-	class myObject {}
+	class myObject {
+		public		$cow = 999;
+		protected	$moo = 666;
+		private		$cat = 555;
+	}
 	
 	$obj = new myObject;
 	

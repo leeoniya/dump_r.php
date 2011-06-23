@@ -76,7 +76,16 @@ class dump_r {
 			$type->type		= 'object';
 			$type->disp		= '{ }';
 			$type->subtype	= get_class($input);
-			$type->children	= get_object_vars($input);
+			$type->children	= array();
+
+			$childs	= (array)$input;		// hacks access to protected and private props
+			foreach ($childs as $k => $v) {
+				// clean up odd chars left in private/protected names
+				$k = preg_replace("/[^\w]/", '', $k);
+				$k = preg_replace("/^{$type->subtype}/", '', $k);
+				$type->children[$k] = $v;
+			}
+
 		//	for SimpleXML dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
 		//	$type->length	= count($type->children);
 		}
