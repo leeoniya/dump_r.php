@@ -64,7 +64,8 @@
 	color: #BBBBBB;
 }
 
-/* hide empty strings completely */
+/* hide empty strings completely 
 #dump_r .empty.string:not(.numeric) > .lbl .val {
 	display: none;
 }
+*/
