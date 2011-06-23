@@ -81,8 +81,7 @@ class dump_r {
 			$childs	= (array)$input;		// hacks access to protected and private props
 			foreach ($childs as $k => $v) {
 				// clean up odd chars left in private/protected names
-				$k = preg_replace("/[^\w]/", '', $k);
-				$k = preg_replace("/^{$type->subtype}/", '', $k);
+				$k = preg_replace("/[^\w]?(?:{$type->subtype})?[^\w]?/", '', $k);
 				$type->children[$k] = $v;
 			}
 
