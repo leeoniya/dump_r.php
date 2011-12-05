@@ -1,6 +1,8 @@
 # dump_r() #
 _a cleaner, leaner mix of print_r() and var_dump() for the browser - with HTML5/CSS3/JS at your disposal, you deserve better_
 
+__check out [a screenshot](https://github.com/leeoniya/dump_r.php/blob/master/example.png) for a screenshot of the default output and css syling__
+
 __print_r() lacks__
 
   - types / lengths
