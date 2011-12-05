@@ -48,8 +48,8 @@
 	$sub->c = array('hello', 'world', 2.98);
 	$sub->d = "75";
 
-	$obj->json_str_arr = json_encode(array(true,false,null,$sub));
-	$obj->json_str_obj = json_encode($sub);
+	$obj->json_arr_str = json_encode(array(true,false,null,$sub));
+	$obj->json_obj_str = json_encode($sub);
 	$obj->xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>";
 ?>
 
