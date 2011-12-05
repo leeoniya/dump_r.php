@@ -40,7 +40,7 @@
 	$obj->call_anon = function($a) {};
 	$obj->call_static = 'lib::myFn';
 	$obj->call_array = array('lib' ,'myFn');
-	$obj->notfn = 'pie';		// global functions are excluded in favor of not mis-interpreting strings
+	$obj->notfn = 'pi';		// global functions are excluded in favor of not mis-interpreting strings
 
 	$sub = new stdClass;
 	$sub->a = 'moo';
