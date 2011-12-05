@@ -36,7 +36,7 @@
 	$obj->dom = new DOMDocument;
 	$obj->xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>");
 	$obj->afile = fopen(__FILE__, 'r');
-	
+
 	$obj->call_anon = function($a) {};
 	$obj->call_static = 'lib::myFn';
 	$obj->call_array = array('lib' ,'myFn');
@@ -51,24 +51,23 @@
 	$obj->json_str_arr = json_encode(array(true,false,null,$sub));
 	$obj->json_str_obj = json_encode($sub);
 	$obj->xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>";
-
 ?>
 
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en-US">
 <head>
 	<meta charset="UTF-8">
 	<title>dump_r()</title>
 
-	<link rel="stylesheet" type="text/css" href="dump_r.css" media="all" />
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-	<script type="text/javascript" src="dump_r.js"></script>
+	<link rel="stylesheet" href="dump_r.css" media="all">
+	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<script src="dump_r.js"></script>
 </head>
 <body>
 	<h1>dump_r()</h1>
 	<h2>no depth restriction</h2>
-	<?php new dump_r($obj); ?>
+	<?php dump_r($obj); ?>
 	<h2>with depth restriction</h2>
-	<?php new dump_r($obj, 1); ?>
+	<?php dump_r($obj, 1); ?>
 </body>
 </html>

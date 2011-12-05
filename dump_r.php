@@ -6,22 +6,22 @@
 * dump_r.php
 * better than print_r()
 * better than var_dump()
-* in HTML
+* for browsers
 */
-class dump_r {
+function dump_r($input, $exp_lvls = 1000)
+{
+	// get the input arg passed to the function
+	$src = debug_backtrace();
+	$src = (object)$src[0];
+	$file = file($src->file);
+	$line = $file[$src->line - 1];
+	preg_match('/dump_r\((.+?)(?:,|\);)/', $line, $m);
 
-	public function __construct($input, $exp_lvls = 1000)
-	{
-		// get the input arg passed to the function
-		$src = debug_backtrace();
-		$src = (object)$src[0];
-		$file = file($src->file);
-		$line = $file[$src->line - 1];
-		preg_match('/dump_r\((.+?)(?:,|\);)/', $line, $m);
+	echo dump_r::go($input, $m[1], $exp_lvls);
+}
 
-		echo self::go($input, $m[1], $exp_lvls);
-	}
-
+class dump_r
+{
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
 		$buf = '';
