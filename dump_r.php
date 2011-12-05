@@ -25,7 +25,7 @@ class dump_r
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
 		$buf = '';
-		$buf .= $st ? '<pre id="dump_r"><ul>' : '';
+		$buf .= $st ? '<pre class="dump_r"><ul>' : '';
 		$t = self::checkType($inp);
 		$disp = htmlspecialchars($t->disp);
 		$len = !is_null($t->length) ? "<div class=\"len\">{$t->length}</div>" : '';
