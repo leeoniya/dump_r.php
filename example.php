@@ -53,21 +53,8 @@
 	$obj->xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>";
 ?>
 
-<!DOCTYPE html>
-<html lang="en-US">
-<head>
-	<meta charset="UTF-8">
-	<title>dump_r()</title>
-
-	<link rel="stylesheet" href="dump_r.css" media="all">
-	<script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-	<script src="dump_r.js"></script>
-</head>
-<body>
-	<h1>dump_r()</h1>
-	<h2>no depth restriction</h2>
-	<?php dump_r($obj); ?>
-	<h2>with depth restriction</h2>
-	<?php dump_r($obj, 1); ?>
-</body>
-</html>
+<h1>dump_r()</h1>
+<h2>no depth restriction</h2>
+<?php dump_r($obj); ?>
+<h2>with depth restriction</h2>
+<?php dump_r($obj, 1); ?>

@@ -22,10 +22,21 @@ function dump_r($input, $exp_lvls = 1000)
 
 class dump_r
 {
+	// indicator for injecting css/js on first dump
+	public static $initial = true;
+	public static $css;
+	public static $js;
+
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
+		$inject = '';
+		if (self::$initial) {
+			$inject = self::$css . self::$js;
+			self::$initial = false;
+		}
+
 		$buf = '';
-		$buf .= $st ? '<pre class="dump_r"><ul>' : '';
+		$buf .= $st ? "{$inject}<pre class=\"dump_r\"><ul>" : '';
 		$t = self::checkType($inp);
 		$disp = htmlspecialchars($t->disp);
 		$len = !is_null($t->length) ? "<div class=\"len\">{$t->length}</div>" : '';
@@ -127,3 +138,104 @@ class dump_r
 		return $type;
 	}
 }
+
+// css
+ob_start();
+?>
+<style>
+	.dump_r {
+		clear: both;
+	}
+
+	.dump_r ul {
+		list-style: none;
+		padding: 0 0 0 15px;
+		margin: 0;
+	}
+
+	.dump_r ul ul {
+		margin-top: 2px;
+	}
+
+	.dump_r li {
+		margin-bottom: 2px;
+	}
+
+	.dump_r .excol {
+		font-size: 8pt;
+		position: absolute;
+		margin: 1px 0 0 -15px;
+		cursor: pointer;
+	}
+
+	.dump_r .expanded > .excol			{font-size: 10pt;}		/* for FF */
+	.dump_r .expanded > .excol:after	{content: "\25BC";}
+	.dump_r .collapsed > .excol:after	{content: "\25B6";}
+	.dump_r .collapsed > ul				{display: none;}
+
+	.dump_r .lbl						{position: relative; padding-left: 3px;}
+	.dump_r .lbl > *					{display: inline-block;}
+
+
+	.dump_r li > .lbl					{background-color: #F1F1F1;}
+	.dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
+
+	.dump_r .key						{font-weight: bold; width: 130px;}
+	.dump_r .val						{margin-right: 5px; min-width: 5px;}
+	.dump_r .typ,
+	.dump_r .sub,
+	.dump_r .len						{color: #666666; margin-right: 5px;}
+
+	.dump_r .typ						{display: none;}
+
+	.dump_r .array			> .lbl .val {background-color: #C0BCFF;}
+	.dump_r .object			> .lbl .val {background-color: #98FB98;}
+	.dump_r .function		> .lbl .val {background-color: #FAFF5C;}
+	.dump_r .boolean		> .lbl .val {background-color: #08F200;}
+	.dump_r .boolean.empty	> .lbl .val {background-color: #FF8C8C;}
+	.dump_r .null			> .lbl .val {background-color: #FFD782;}
+	.dump_r .integer		> .lbl .val {background-color: #EAB2EA;}
+	.dump_r .float			> .lbl .val {background-color: #EB65EB;}
+	.dump_r .string			> .lbl .val {background-color: #FFBFBF;}
+	.dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
+	.dump_r .numeric		> .lbl .val {}
+
+	/* hide length of empty stuff except numeric eg '0' strings */
+	.dump_r .empty:not(.numeric) > .lbl .len {
+		display: none;
+	}
+
+	/* display empty strings as a gray middle dot */
+	.dump_r .empty.string:not(.numeric) > .lbl .val:after {
+		content: "\0387";
+		color: #BBBBBB;
+	}
+
+	/* hide empty strings completely
+	.dump_r .empty.string:not(.numeric) > .lbl .val {
+		display: none;
+	}
+	*/
+</style>
+<?php
+dump_r::$css = ob_get_contents();
+ob_end_clean();
+
+// js
+ob_start();
+?>
+<script>
+	(function(){
+		function toggle(e) {
+			if (e.target.className.indexOf("excol") !== -1) {
+				e.target.parentNode.className = e.target.parentNode.className.replace(/\bexpanded\b|\bcollapsed\b/, function(m) {
+					return m == "collapsed" ? "expanded" : "collapsed";
+				});
+			}
+		}
+		document.addEventListener("click", toggle, false);
+	})();
+</script>
+<?php
+dump_r::$js = ob_get_contents();
+ob_end_clean();
