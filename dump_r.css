@@ -28,30 +28,32 @@
 #dump_r .collapsed > .excol:after	{content: "\25B6";}
 #dump_r .collapsed > ul				{display: none;}
 
-#dump_r .lbl					{position: relative; padding-left: 3px;}
-#dump_r .lbl > *				{display: inline-block;}
+#dump_r .lbl						{position: relative; padding-left: 3px;}
+#dump_r .lbl > *					{display: inline-block;}
 
 
 #dump_r li > .lbl					{background-color: #F1F1F1;}
 #dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
 
-#dump_r .key					{font-weight: bold; width: 130px;}
-#dump_r .val					{margin-right: 5px; min-width: 5px;}
+#dump_r .key						{font-weight: bold; width: 130px;}
+#dump_r .val						{margin-right: 5px; min-width: 5px;}
 #dump_r .typ,
 #dump_r .sub,
-#dump_r .len					{color: #666666; margin-right: 5px;}
+#dump_r .len						{color: #666666; margin-right: 5px;}
 
-#dump_r .typ					{display: none;}
+#dump_r .typ						{display: none;}
 
-#dump_r .array		> .lbl .val {background-color: #C0BCFF;}
-#dump_r .object		> .lbl .val {background-color: #98FB98;}
-#dump_r .boolean	> .lbl .val {background-color: #ADD8E6;}
-#dump_r .null		> .lbl .val {background-color: #FFD782;}
-#dump_r .integer	> .lbl .val {background-color: #EAB2EA;}
-#dump_r .float		> .lbl .val {background-color: #EDCBED;}
-#dump_r .string		> .lbl .val {background-color: #FFBFBF;}
-#dump_r .resource	> .lbl .val {background-color: #E2FF8C;}
-#dump_r .numeric	> .lbl .val {}
+#dump_r .array			> .lbl .val {background-color: #C0BCFF;}
+#dump_r .object			> .lbl .val {background-color: #98FB98;}
+#dump_r .function		> .lbl .val {background-color: #FAFF5C;}
+#dump_r .boolean		> .lbl .val {background-color: #08F200;}
+#dump_r .boolean.empty	> .lbl .val {background-color: #FF8C8C;}
+#dump_r .null			> .lbl .val {background-color: #FFD782;}
+#dump_r .integer		> .lbl .val {background-color: #EAB2EA;}
+#dump_r .float			> .lbl .val {background-color: #EB65EB;}
+#dump_r .string			> .lbl .val {background-color: #FFBFBF;}
+#dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
+#dump_r .numeric		> .lbl .val {}
 
 /* hide length of empty stuff except numeric eg '0' strings */
 #dump_r .empty:not(.numeric) > .lbl .len {
@@ -64,7 +66,7 @@
 	color: #BBBBBB;
 }
 
-/* hide empty strings completely 
+/* hide empty strings completely
 #dump_r .empty.string:not(.numeric) > .lbl .val {
 	display: none;
 }

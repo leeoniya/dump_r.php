@@ -18,10 +18,10 @@ class dump_r {
 		$file = file($src->file);
 		$line = $file[$src->line - 1];
 		preg_match('/dump_r\((.+?)(?:,|\);)/', $line, $m);
-		
+
 		echo self::go($input, $m[1], $exp_lvls);
 	}
-	
+
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
 		$buf = '';
@@ -44,10 +44,10 @@ class dump_r {
 		}
 		$buf .= '</li>';
 		$buf .= $st ? '</ul></pre>' : '';
-		
+
 		return $buf;
 	}
-	
+
 	// TODO?: get_class_methods()?
 	// TODO?: is_numeric()
 	public static function checkType($input)
@@ -59,8 +59,12 @@ class dump_r {
 			'length'		=> null,
 			'children'		=> null
 		);
-		
-		if (is_array($input)) {
+		// avoid detecting strings with names of global functions as callbacks
+		if (is_callable($input) && !(is_string($input) && function_exists($input))) {
+			$type->type		= 'function';
+			$type->disp		= 'fn()';
+		}
+		else if (is_array($input)) {
 			$type->type		= 'array';
 			$type->disp		= '[ ]';
 			$type->children	= $input;
@@ -84,7 +88,6 @@ class dump_r {
 				$k = preg_replace("/[^\w]?(?:{$type->subtype})?[^\w]?/", '', $k);
 				$type->children[$k] = $v;
 			}
-
 		//	for SimpleXML dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
 		//	$type->length	= count($type->children);
 		}
@@ -100,9 +103,9 @@ class dump_r {
 				$type->subtype	= 'XML';
 				$type->children = (array)$xml;
 				// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
-				$type->length = null;			
+				$type->length = null;
 			}
-			else if (($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
+			else if ($type->length > 0 && ($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
 				// maybe set subtype as JSON [] or JSON {}, will screw up classname
 				$type->subtype	= 'JSON';
 				$type->children = (array)$json;
@@ -120,7 +123,7 @@ class dump_r {
 		}
 		else
 			$type->type		= gettype($input);
-		
+
 		return $type;
 	}
 }
