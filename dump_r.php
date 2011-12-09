@@ -90,7 +90,7 @@ class dump_r
 		else if (is_object($input)) {
 			$type->type		= 'object';
 			$type->disp		= '{ }';
-			$type->subtype	= get_class($input);
+			$type->subtype	= $input instanceof stdClass ? '' : get_class($input);
 			$type->children	= array();
 
 			$childs	= (array)$input;		// hacks access to protected and private props
@@ -173,7 +173,7 @@ ob_start();
 	.dump_r .collapsed > .excol:after	{content: "\25B6";}
 	.dump_r .collapsed > ul				{display: none;}
 
-	.dump_r .lbl						{position: relative; padding-left: 3px;}
+	.dump_r .lbl						{position: relative; padding-left: 3px; padding-right: 5px;}
 	.dump_r .lbl > *					{display: inline-block;}
 
 
