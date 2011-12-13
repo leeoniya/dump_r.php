@@ -158,6 +158,7 @@ ob_start();
 	}
 
 	.dump_r li {
+		position: relative;
 		margin-bottom: 2px;
 	}
 
