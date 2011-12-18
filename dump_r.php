@@ -64,8 +64,6 @@ class dump_r
 		return $buf;
 	}
 
-	// TODO?: get_class_methods()?
-	// TODO?: is_numeric()
 	public static function checkType($input)
 	{
 		$type = (object)array(
@@ -104,8 +102,6 @@ class dump_r
 				$k = preg_replace("/[^\w]?(?:{$type->subtype})?[^\w]?/", '', $k);
 				$type->children[$k] = $v;
 			}
-		//	for SimpleXML dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
-		//	$type->length	= count($type->children);
 		}
 		else if (is_int($input))
 			$type->type		= 'integer';
