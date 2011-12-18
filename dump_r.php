@@ -24,8 +24,10 @@ class dump_r
 {
 	// indicator for injecting css/js on first dump
 	public static $initial = true;
+	public static $str_infer = array();
 	public static $css;
 	public static $js;
+	public static $self_disp = '*RECURSION*';
 
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
@@ -49,8 +51,11 @@ class dump_r
 		$buf .= "<li class=\"{$t->type}{$t->subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
 		if ($t->children) {
 			$buf .= '<ul>';
-			foreach ($t->children as $k => $v)
+			foreach ($t->children as $k => $v) {
+				if ($v === $inp)
+					$v = self::$self_disp;
 				$buf .= self::go($v, $k, $exp_lvls - 1, FALSE);
+			}
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
@@ -110,18 +115,9 @@ class dump_r
 			$type->type		= 'string';
 			$type->length	= strlen($input);
 
-			if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
-				$type->subtype	= 'XML';
-				$type->children = (array)$xml;
-				// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
-				$type->length = null;
-			}
-			else if ($type->length > 0 && ($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
-				// maybe set subtype as JSON [] or JSON {}, will screw up classname
-				$type->subtype	= 'JSON';
-				$type->children = (array)$json;
-				// dont show length of objects, only arrays
-				$type->length = $input{0} == '[' ? count($type->children) : null;
+			foreach(self::$str_infer as $fn) {
+				if ($fn($input, $type))
+					return $type;
 			}
 		}
 		else if (is_bool($input)) {
@@ -138,6 +134,47 @@ class dump_r
 		return $type;
 	}
 }
+
+// is_recursion
+dump_r::$str_infer[] = function($input, $type) {
+	if ($input === dump_r::$self_disp) {
+		$type->type		= 'self';
+		$type->length	= null;
+
+		return true;
+	}
+
+	return false;
+};
+
+// is_xml
+dump_r::$str_infer[] = function($input, $type) {
+	if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
+		$type->subtype	= 'XML';
+		$type->children = (array)$xml;
+		// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
+		$type->length = null;
+
+		return true;
+	}
+
+	return false;
+};
+
+// is_json
+dump_r::$str_infer[] = function($input, $type) {
+	if ($type->length > 0 && ($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
+		// maybe set subtype as JSON [] or JSON {}, will screw up classname
+		$type->subtype	= 'JSON';
+		$type->children = (array)$json;
+		// dont show length of objects, only arrays
+		$type->length = $input{0} == '[' ? count($type->children) : null;
+
+		return true;
+	}
+
+	return false;
+};
 
 // css
 ob_start();
@@ -200,6 +237,7 @@ ob_start();
 	.dump_r .string			> .lbl .val {background-color: #FFBFBF;}
 	.dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
 	.dump_r .numeric		> .lbl .val {}
+	.dump_r .self			> .lbl .val {background-color: #CEFBF3;}
 
 	/* hide length of empty stuff except numeric eg '0' strings */
 	.dump_r .empty:not(.numeric) > .lbl .len {
@@ -228,6 +266,8 @@ ob_start();
 <script>
 	(function(){
 		function toggle(e) {
+			if (e.which != 1) return;
+
 			if (e.target.className.indexOf("excol") !== -1) {
 				e.target.parentNode.className = e.target.parentNode.className.replace(/\bexpanded\b|\bcollapsed\b/, function(m) {
 					return m == "collapsed" ? "expanded" : "collapsed";

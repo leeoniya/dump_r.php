@@ -45,7 +45,7 @@
 	$sub = new stdClass;
 	$sub->a = 'moo';
 	$sub->b = false;
-	$sub->c = array('hello', 'world', 2.98);
+	$sub->c = array('hello', 'world', 2.98, null);
 	$sub->d = "75";
 
 	$obj->json_arr_str = json_encode(array(true,false,null,$sub));
