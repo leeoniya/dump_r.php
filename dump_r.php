@@ -24,10 +24,10 @@ class dump_r
 {
 	// indicator for injecting css/js on first dump
 	public static $initial = true;
-	public static $str_infer = array();
 	public static $css;
 	public static $js;
-	public static $self_disp = '*RECURSION*';
+	public static $self = '*RECURSION*';
+	public static $hooks = array();
 
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
 	{
@@ -53,7 +53,7 @@ class dump_r
 			$buf .= '<ul>';
 			foreach ($t->children as $k => $v) {
 				if ($v === $inp)
-					$v = self::$self_disp;
+					$v = self::$self;
 				$buf .= self::go($v, $k, $exp_lvls - 1, FALSE);
 			}
 			$buf .= '</ul>';
@@ -93,7 +93,7 @@ class dump_r
 		else if (is_object($input)) {
 			$type->type		= 'object';
 			$type->disp		= '{ }';
-			$type->subtype	= $input instanceof stdClass ? '' : get_class($input);
+			$type->subtype	= get_class($input);
 			$type->children	= array();
 
 			$childs	= (array)$input;		// hacks access to protected and private props
@@ -110,11 +110,6 @@ class dump_r
 		else if (is_string($input)) {
 			$type->type		= 'string';
 			$type->length	= strlen($input);
-
-			foreach(self::$str_infer as $fn) {
-				if ($fn($input, $type))
-					return $type;
-			}
 		}
 		else if (is_bool($input)) {
 			$type->type		= 'boolean';
@@ -127,13 +122,74 @@ class dump_r
 		else
 			$type->type		= gettype($input);
 
+		if (array_key_exists($type->type, self::$hooks))
+			self::proc_hooks($type->type, $input, $type);
+
 		return $type;
+	}
+
+	public static function proc_hooks($key, $input, $type)
+	{
+		foreach(self::$hooks[$key] as $fn) {
+			if ($fn($input, $type))
+				return true;
+		}
+		return false;
+	}
+
+	// hook_string, hook_resource
+	public static function __callStatic($name, $args)
+	{
+		if (substr($name, 0, 5) == 'hook_') {
+			$hookey = substr($name, 5);
+			if (count($args) == 2)
+				self::$hooks[$hookey][$args[1]] = $args[0];
+			else
+				self::$hooks[$hookey][] = $args[0];
+		}
 	}
 }
 
-// is_recursion
-dump_r::$str_infer[] = function($input, $type) {
-	if ($input === dump_r::$self_disp) {
+// util functions for hooks
+class dump_r_lib
+{
+	public static function rel_date($datetime) {
+		$rel_date = '';
+		$timestamp = is_string($datetime) ? strtotime($datetime) : $datetime;
+		$diff = time()-$timestamp;
+		$dir = '-';
+		if ($diff < 0) {
+			$diff *= -1;
+			$dir = '+';
+		}
+		$yrs = floor($diff/31557600);
+		$diff -= $yrs*31557600;
+		$mhs = floor($diff/2592000);
+		$diff -= $mhs*2419200;
+		$wks = floor($diff/604800);
+		$diff -= $wks*604800;
+		$dys = floor($diff/86400);
+		$diff -= $dys*86400;
+		$hrs = floor($diff/3600);
+		$diff -= $hrs*3600;
+		$mins = floor($diff/60);
+		$diff -= $mins*60;
+		$secs = $diff;
+
+		if		($yrs > 0)	$rel_date .= $yrs.'y' . ($mhs > 0 ? ' '.$mhs.'m' : '');
+		elseif	($mhs > 0)	$rel_date .= $mhs.'m' . ($wks > 0 ? ' '.$wks.'w' : '');
+		elseif	($wks > 0)	$rel_date .= $wks.'w' . ($dys > 0 ? ' '.$dys.'d' : '');
+		elseif	($dys > 0)	$rel_date .= $dys.'d' . ($hrs > 0 ? ' '.$hrs.'h' : '');
+		elseif	($hrs > 0)	$rel_date .= $hrs.'h' . ($mins > 0 ? ' '.$mins.'m' : '');
+		elseif	($mins > 0)	$rel_date .= $mins.'m';
+		else				$rel_date .= $secs.'s';
+
+		return $dir . $rel_date;
+	}
+}
+
+dump_r::hook_string(function($input, $type) {
+	if ($input === dump_r::$self) {
 		$type->type		= 'self';
 		$type->length	= null;
 
@@ -141,10 +197,9 @@ dump_r::$str_infer[] = function($input, $type) {
 	}
 
 	return false;
-};
+}, 'is_recursion');
 
-// is_xml
-dump_r::$str_infer[] = function($input, $type) {
+dump_r::hook_string(function($input, $type) {
 	if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
 		$type->subtype	= 'XML';
 		$type->children = (array)$xml;
@@ -155,10 +210,9 @@ dump_r::$str_infer[] = function($input, $type) {
 	}
 
 	return false;
-};
+}, 'is_xml');
 
-// is_json
-dump_r::$str_infer[] = function($input, $type) {
+dump_r::hook_string(function($input, $type) {
 	if ($type->length > 0 && ($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
 		// maybe set subtype as JSON [] or JSON {}, will screw up classname
 		$type->subtype	= 'JSON';
@@ -170,7 +224,18 @@ dump_r::$str_infer[] = function($input, $type) {
 	}
 
 	return false;
-};
+}, 'is_json');
+
+dump_r::hook_string(function($input, $type) {
+	if (strlen($input) > 5 && ($ts = strtotime($input)) !== false) {
+		$type->subtype = 'datetime';
+		$type->length = dump_r_lib::rel_date($ts);
+
+		return true;
+	}
+
+	return false;
+}, 'is_datetime');
 
 // css
 ob_start();
@@ -234,6 +299,12 @@ ob_start();
 	.dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
 	.dump_r .numeric		> .lbl .val {}
 	.dump_r .self			> .lbl .val {background-color: #CEFBF3;}
+	.dump_r .datetime		> .lbl .val {}
+
+	.dump_r .stdClass .sub,
+	.dump_r .datetime .sub {
+		display: none;
+	}
 
 	/* hide length of empty stuff except numeric eg '0' strings */
 	.dump_r .empty:not(.numeric) > .lbl .len {
