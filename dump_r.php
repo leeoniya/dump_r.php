@@ -29,7 +29,7 @@ class dump_r
 	public static $self = '*RECURSION*';
 	public static $hooks = array();
 
-	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = TRUE)
+	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = true)
 	{
 		$inject = '';
 		if (self::$initial) {
@@ -54,7 +54,7 @@ class dump_r
 			foreach ($t->children as $k => $v) {
 				if ($v === $inp)
 					$v = self::$self;
-				$buf .= self::go($v, $k, $exp_lvls - 1, FALSE);
+				$buf .= self::go($v, $k, $exp_lvls - 1, false);
 			}
 			$buf .= '</ul>';
 		}
