@@ -287,7 +287,7 @@ ob_start();
 	.dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
 
 	.dump_r .key						{font-weight: bold; width: 130px;}
-	.dump_r .val						{margin-right: 5px; min-width: 5px;}
+	.dump_r .val						{margin-right: 5px; min-width: 5px; vertical-align: top;}
 	.dump_r .typ,
 	.dump_r .sub,
 	.dump_r .len						{color: #666666; margin-right: 5px;}
