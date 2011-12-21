@@ -200,13 +200,20 @@ dump_r::hook_string(function($input, $type) {
 }, 'is_recursion');
 
 dump_r::hook_string(function($input, $type) {
-	if (substr($input, 0, 5) == '<?xml' && ($xml = simplexml_load_string($input))) {
-		$type->subtype	= 'XML';
-		$type->children = (array)$xml;
-		// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
-		$type->length = null;
+	if (substr($input, 0, 5) == '<?xml') {
+		// strip namespaces
+		$input = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $input));
 
-		return true;
+		if ($xml = simplexml_load_string($input)) {
+			$type->subtype	= 'XML';
+			$type->children = (array)$xml;
+			// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
+			$type->length = null;
+
+			return true;
+		}
+
+		return false;
 	}
 
 	return false;
