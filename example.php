@@ -10,6 +10,12 @@
 		protected	$moo = 666;
 		private		$cat = 555;
 		static		$dog = 444;
+
+		protected	$self;
+
+		public function  __construct() {
+			$this->self = $this;
+		}
 	}
 
 	$obj = new myObject;
@@ -30,11 +36,12 @@
 		'a'		=> null,
 		'xxx'	=> new myObject,
 	);
+	$obj->date_str = '2011-12-13 15:25:03';
 	$obj->otherSet = array();
 	$obj->isFull = false;
 	$obj->food = null;
 	$obj->dom = new DOMDocument;
-	$obj->xml = new SimpleXMLElement("<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>");
+	$obj->xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>');
 	$obj->afile = fopen(__FILE__, 'r');
 
 	$obj->call_anon = function($a) {};
@@ -50,7 +57,7 @@
 
 	$obj->json_arr_str = json_encode(array(true,false,null,$sub));
 	$obj->json_obj_str = json_encode($sub);
-	$obj->xml_str = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><root><moo attr=\"myAttribute\">f</moo><moo2>g</moo2><sss>55.9</sss></root>";
+	$obj->xml_str = '<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>';
 ?>
 
 <h1>dump_r()</h1>
