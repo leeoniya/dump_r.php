@@ -6,10 +6,10 @@
 	}
 
 	class myObject {
-		public		$cow = 999;
-		protected	$moo = 666;
-		private		$cat = 555;
-		static		$dog = 444;
+		public		$cow_publ = 999;
+		protected	$moo_prot = 666;
+		private		$cat_priv = 555;
+		static		$dog_stat = 444;
 
 		protected	$self;
 
