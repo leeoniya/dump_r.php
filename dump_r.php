@@ -17,7 +17,7 @@ function dump_r($input, $exp_lvls = 1000)
 	$line = $file[$src->line - 1];
 	preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
 
-	echo dump_r::go($input, $m[1], $exp_lvls);
+	echo dump_r::render(dump_r::struct($input), $m[1], $exp_lvls);
 }
 
 class dump_r
@@ -30,9 +30,9 @@ class dump_r
 	public static $hooks = array();
 
 	// creates an internal dump representation
-	public static function prep_obj($inp)
+	public static function struct($inp)
 	{
-		$o = self::checkType($inp);
+		$o = self::type($inp);
 
 		if (empty($o->children))
 			return $o;
@@ -40,13 +40,13 @@ class dump_r
 		foreach ($o->children as $k => $v) {
 			if ($v === $inp)
 				$v = self::$self;
-			$o->children[$k] = self::prep_obj($v);
+			$o->children[$k] = self::struct($v);
 		}
 
 		return $o;
 	}
 
-	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = true)
+	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true)
 	{
 		$inject = '';
 		if (self::$initial) {
@@ -56,23 +56,20 @@ class dump_r
 
 		$buf = '';
 		$buf .= $st ? "{$inject}<pre class=\"dump_r\"><ul>" : '';
-		$t = self::checkType($inp);
-		$disp = htmlspecialchars($t->disp);
-		$len = !is_null($t->length) ? "<div class=\"len\">{$t->length}</div>" : '';
-		$sub = !is_null($t->subtype) ? "<div class=\"sub\">{$t->subtype}</div>" : '';
-		$excol = !empty($t->children) ? '<div class="excol"></div>' : '';
+		$s = &$struct;
+		$disp = htmlspecialchars($s->disp);
+		$len = !is_null($s->length) ? "<div class=\"len\">{$s->length}</div>" : '';
+		$sub = !is_null($s->subtype) ? "<div class=\"sub\">{$s->subtype}</div>" : '';
+		$excol = !empty($s->children) ? '<div class="excol"></div>' : '';
 		$exp_state = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
-		$empty = $t->empty ? ' empty' : '';
-		$numeric = $t->numeric ? ' numeric' : '';
-		$t->subtype = $t->subtype ? ' ' . $t->subtype : $t->subtype;
-		$buf .= "<li class=\"{$t->type}{$t->subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
-		if ($t->children) {
+		$empty		= $s->empty		? ' empty'			: '';
+		$numeric	= $s->numeric	? ' numeric'		: '';
+		$subtype	= $s->subtype	? " $s->subtype"	: '';
+		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
+		if ($s->children) {
 			$buf .= '<ul>';
-			foreach ($t->children as $k => $v) {
-				if ($v === $inp)
-					$v = self::$self;
-				$buf .= self::go($v, $k, $exp_lvls - 1, false);
-			}
+			foreach ($s->children as $k => $s2)
+				$buf .= self::render($s2, $k, $exp_lvls - 1, false);
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
@@ -81,7 +78,7 @@ class dump_r
 		return $buf;
 	}
 
-	public static function checkType($input)
+	public static function type($input)
 	{
 		$type = (object)array(
 			'type'			=> null,
