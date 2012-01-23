@@ -29,6 +29,23 @@ class dump_r
 	public static $self = '*RECURSION*';
 	public static $hooks = array();
 
+	// creates an internal dump representation
+	public static function prep_obj($inp)
+	{
+		$o = self::checkType($inp);
+
+		if (empty($o->children))
+			return $o;
+
+		foreach ($o->children as $k => $v) {
+			if ($v === $inp)
+				$v = self::$self;
+			$o->children[$k] = self::prep_obj($v);
+		}
+
+		return $o;
+	}
+
 	public static function go($inp, $key = 'root', $exp_lvls = 1000, $st = true)
 	{
 		$inject = '';
