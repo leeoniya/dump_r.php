@@ -234,7 +234,7 @@ dump_r::hook_string(function($input, $type) {
 }, 'is_json');
 
 dump_r::hook_string(function($input, $type) {
-	if (strlen($input) > 5 && ($ts = strtotime($input)) !== false) {
+	if (strlen($input) > 5 && preg_match('#[:/-]#', $input) && ($ts = strtotime($input)) !== false) {
 		$type->subtype = 'datetime';
 		$type->length = dump_r_lib::rel_date($ts);
 

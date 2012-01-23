@@ -37,6 +37,7 @@
 		'xxx'	=> new myObject,
 	);
 	$obj->date_str = '2011-12-13 15:25:03';
+	$obj->not_date = '123456';
 	$obj->otherSet = array();
 	$obj->isFull = false;
 	$obj->food = null;
