@@ -15,7 +15,7 @@ function dump_r($input, $exp_lvls = 1000)
 	$src = (object)$src[0];
 	$file = file($src->file);
 	$line = $file[$src->line - 1];
-	preg_match('/dump_r\((.+?)(?:,|\);)/', $line, $m);
+	preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
 
 	echo dump_r::go($input, $m[1], $exp_lvls);
 }
