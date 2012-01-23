@@ -42,11 +42,11 @@ class dump_r
 		$t = self::checkType($inp);
 		$disp = htmlspecialchars($t->disp);
 		$len = !is_null($t->length) ? "<div class=\"len\">{$t->length}</div>" : '';
-		$sub = !is_null($t->subtype) && !is_bool($inp) ? "<div class=\"sub\">{$t->subtype}</div>" : '';
-		$excol = is_array($t->children) && !empty($t->children) ? '<div class="excol"></div>' : '';
+		$sub = !is_null($t->subtype) ? "<div class=\"sub\">{$t->subtype}</div>" : '';
+		$excol = !empty($t->children) ? '<div class="excol"></div>' : '';
 		$exp_state = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
-		$empty = empty($inp) ? ' empty' : '';
-		$numeric = is_numeric($inp) ? ' numeric' : '';
+		$empty = $t->empty ? ' empty' : '';
+		$numeric = $t->numeric ? ' numeric' : '';
 		$t->subtype = $t->subtype ? ' ' . $t->subtype : $t->subtype;
 		$buf .= "<li class=\"{$t->type}{$t->subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$t->type})</div>{$sub}{$len}</div>";
 		if ($t->children) {
@@ -70,9 +70,12 @@ class dump_r
 			'type'			=> null,
 			'disp'			=> $input,
 			'subtype'		=> null,
+			'empty'			=> empty($input),
+			'numeric'		=> is_numeric($input),
 			'length'		=> null,
 			'children'		=> null
 		);
+
 		// avoid detecting strings with names of global functions as callbacks
 		if (is_callable($input) && !(is_string($input) && function_exists($input))) {
 			$type->type		= 'function';
