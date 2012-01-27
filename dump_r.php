@@ -23,7 +23,8 @@ function dump_r($input, $exp_lvls = 1000)
 class dump_r
 {
 	// indicator for injecting css/js on first dump
-	public static $initial = true;
+	public static $initial	= true;
+	public static $keyWidth	= 0;
 	public static $css;
 	public static $js;
 	public static $self = '*RECURSION*';
@@ -48,6 +49,9 @@ class dump_r
 
 	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true)
 	{
+		// track max key width (8px/char)
+		self::$keyWidth = max(self::$keyWidth, strlen($key) * 8);
+
 		$inject = '';
 		if (self::$initial) {
 			$inject = self::$css . self::$js;
@@ -73,7 +77,7 @@ class dump_r
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
-		$buf .= $st ? '</ul></pre>' : '';
+		$buf .= $st ? '</ul><style>.dump_r .key {min-width: ' . self::$keyWidth . 'px;}</style></pre>' : '';
 
 		return $buf;
 	}
@@ -303,8 +307,8 @@ ob_start();
 	.dump_r li > .lbl					{background-color: #F1F1F1;}
 	.dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
 
-	.dump_r .key						{font-weight: bold; width: 130px;}
-	.dump_r .val						{margin-right: 5px; min-width: 5px; vertical-align: top;}
+	.dump_r .key						{font-weight: bold;}
+	.dump_r .val						{margin: 0 5px 0 30px; min-width: 5px; vertical-align: top;}
 	.dump_r .typ,
 	.dump_r .sub,
 	.dump_r .len						{color: #666666; margin-right: 5px;}
