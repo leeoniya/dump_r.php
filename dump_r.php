@@ -27,27 +27,41 @@ class dump_r
 	public static $keyWidth	= 0;
 	public static $css;
 	public static $js;
-	public static $self = '*RECURSION*';
 	public static $hooks = array();
 
 	// creates an internal dump representation
-	public static function struct($inp)
+	public static function struct($inp, &$dict = array())
 	{
-		$o = self::type($inp);
+		// detect references to existing objects + recursion
+		if (is_object($inp)) {
+			$hash = spl_object_hash($inp);
+
+			if (array_key_exists($hash, $dict)) {
+				$o = self::tyobj();
+				$o->disp	= '{r}';
+				$o->type	= 'ref';
+				$o->ref		= $dict[$hash];
+			}
+			else {
+				$o = self::type($inp);
+				$o->hash = $hash;
+				$dict[$hash] = $o;
+			}
+		}
+
+		if (!isset($o))
+			$o = self::type($inp);
 
 		if (empty($o->children))
 			return $o;
 
-		foreach ($o->children as $k => $v) {
-			if ($v === $inp)
-				$v = self::$self;
-			$o->children[$k] = self::struct($v);
-		}
+		foreach ($o->children as $k => $v)
+			$o->children[$k] = self::struct($v, $dict);
 
 		return $o;
 	}
 
-	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true)
+	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true, $ln = 1)
 	{
 		// track max key width (8px/char)
 		self::$keyWidth = max(self::$keyWidth, strlen($key) * 8);
@@ -62,6 +76,13 @@ class dump_r
 		$buf .= $st ? "{$inject}<pre class=\"dump_r\"><ul>" : '';
 		$s = &$struct;
 		$disp = htmlspecialchars($s->disp);
+
+		// add jumps to referenced objects
+		if (!empty($s->hash))
+			$disp = "<a name=\"{$s->hash}\">{$disp}</a>";
+		else if ($s->type == 'ref')
+			$disp = "<a href=\"#{$s->ref->hash}\">{$disp}</a>";
+
 		$len = !is_null($s->length) ? "<div class=\"len\">{$s->length}</div>" : '';
 		$sub = !is_null($s->subtype) ? "<div class=\"sub\">{$s->subtype}</div>" : '';
 		$excol = !empty($s->children) ? '<div class="excol"></div>' : '';
@@ -73,7 +94,7 @@ class dump_r
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
-				$buf .= self::render($s2, $k, $exp_lvls - 1, false);
+				$buf .= self::render($s2, $k, $exp_lvls - 1, false, $ln++);
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
@@ -82,17 +103,25 @@ class dump_r
 		return $buf;
 	}
 
+	public static function tyobj()
+	{
+		return (object)array(
+			'type'			=> null,
+			'disp'			=> null,
+			'subtype'		=> null,
+			'empty'			=> null,
+			'numeric'		=> null,
+			'length'		=> null,
+			'children'		=> null,
+		);
+	}
+
 	public static function type($input)
 	{
-		$type = (object)array(
-			'type'			=> null,
-			'disp'			=> $input,
-			'subtype'		=> null,
-			'empty'			=> empty($input),
-			'numeric'		=> is_numeric($input),
-			'length'		=> null,
-			'children'		=> null
-		);
+		$type = self::tyobj();
+		$type->disp		= $input;
+		$type->empty	= empty($input);
+		$type->numeric	= is_numeric($input);
 
 		// avoid detecting strings with names of global functions as callbacks
 		if (is_callable($input) && !(is_string($input) && function_exists($input))) {
@@ -210,17 +239,6 @@ class dump_r_lib
 }
 
 dump_r::hook_string(function($input, $type) {
-	if ($input === dump_r::$self) {
-		$type->type		= 'self';
-		$type->length	= null;
-
-		return true;
-	}
-
-	return false;
-}, 'is_recursion');
-
-dump_r::hook_string(function($input, $type) {
 	if (substr($input, 0, 5) == '<?xml') {
 		// strip namespaces
 		$input = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $input));
@@ -326,7 +344,7 @@ ob_start();
 	.dump_r .string			> .lbl .val {background-color: #FFBFBF;}
 	.dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
 	.dump_r .numeric		> .lbl .val {}
-	.dump_r .self			> .lbl .val {background-color: #CEFBF3;}
+	.dump_r .ref			> .lbl .val {background-color: #CEFBF3;}
 	.dump_r .datetime		> .lbl .val {}
 
 	.dump_r .stdClass .sub,

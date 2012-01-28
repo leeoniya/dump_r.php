@@ -31,6 +31,7 @@
 	$obj->address->street = '111 Any Sreet';
 	$obj->address->zip = 60657;
 	$obj->address->city = 'Chicago';
+	$obj->ref_to_addr = $obj->address;
 	$obj->kids = array(
 		0		=> 'blah',
 		'a'		=> null,
