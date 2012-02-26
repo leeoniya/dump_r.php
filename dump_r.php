@@ -8,7 +8,7 @@
 * better than var_dump()
 * for browsers
 */
-function dump_r($input, $exp_lvls = 1000)
+function dump_r($input, $exp_lvls = 1000, $classy = null)
 {
 	// get the input arg passed to the function
 	$src = debug_backtrace();
@@ -16,6 +16,8 @@ function dump_r($input, $exp_lvls = 1000)
 	$file = file($src->file);
 	$line = $file[$src->line - 1];
 	preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
+
+	dump_r::$classy = $classy;
 
 	echo dump_r::render(dump_r::struct($input), $m[1], $exp_lvls);
 }
@@ -28,6 +30,7 @@ class dump_r
 	public static $css;
 	public static $js;
 	public static $hooks = array();
+	public static $classy = null;
 
 	// creates an internal dump representation
 	public static function struct($inp, &$dict = array())
@@ -90,7 +93,8 @@ class dump_r
 		$empty		= $s->empty		? ' empty'			: '';
 		$numeric	= $s->numeric	? ' numeric'		: '';
 		$subtype	= $s->subtype	? " $s->subtype"	: '';
-		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
+		$classes	= $s->classes	? ' ' . implode(' ', $s->classes) : '';
+		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$classes}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
@@ -113,6 +117,7 @@ class dump_r
 			'numeric'		=> null,
 			'length'		=> null,
 			'children'		=> null,
+			'classes'		=> null,
 		);
 	}
 
@@ -174,6 +179,14 @@ class dump_r
 
 		if (array_key_exists($type->type, self::$hooks))
 			self::proc_hooks($type->type, $input, $type);
+
+		if (is_callable(self::$classy)) {
+			$classes = call_user_func(self::$classy, $input);
+			if (is_string($classes))
+				$classes = explode(' ', $classes);
+			if (is_array($classes))
+				$type->classes = $classes;
+		}
 
 		return $type;
 	}
