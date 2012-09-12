@@ -1,7 +1,5 @@
-# dump_r() #
-_a cleaner, leaner mix of print_r() and var_dump() for the browser - with HTML5/CSS3/JS at your disposal, you deserve better_
-
-__see a [screenshot](https://github.com/leeoniya/dump_r.php/raw/master/example.png) for a taste of the default output and css syling__
+## dump_r()
+_a cleaner, leaner mix of print_r() and var_dump() for the browsers
 
 __print_r() lacks__
 
@@ -24,5 +22,10 @@ __both lack__
   - ability to prevent useless expansion of empties
   - resource dumping
   - decomposing XML/JSON/SQL stings on-the-fly
+
+__default output and css syling__
+
+![screenshot](https://github.com/leeoniya/dump_r.php/raw/master/th_dump_r.png "example.php")  
+[view full size](https://github.com/leeoniya/dump_r.php/raw/master/dump_r.png)
 
 i've tried and noted quite a few alternatives here: http://www.codingforums.com/showthread.php?t=230042. but none were to my liking, hence this project.
