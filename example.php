@@ -60,16 +60,22 @@
 	$obj->json_arr_str = json_encode(array(true,false,null,$sub));
 	$obj->json_obj_str = json_encode($sub);
 	$obj->xml_str = '<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>';
-?>
-<h1>dump_r()</h1>
+?><!DOCTYPE html>
+<html>
+	<head>
+	</head>
+	<body>
+		<h1>dump_r()</h1>
 
-<h2>no depth restriction</h2>
-<?php dump_r($obj); ?>
+		<h2>no depth restriction</h2>
+		<?php dump_r($obj); ?>
 
-<h2>with depth restriction + custom marking</h2>
-<style>
-	.dump_r .myVals > * {
-		background: lightyellow !important;
-	}
-</style>
-<?php dump_r($obj, 1, function($inp) {return $inp == '999' || $inp == '123456' ? 'myVals' : '';}); ?>
+		<h2>with depth restriction + custom marking</h2>
+		<style>
+			.dump_r .myVals > * {
+				background: lightyellow !important;
+			}
+		</style>
+		<?php dump_r($obj, 1, function($inp) {return $inp == '999' || $inp == '123456' ? 'myVals' : '';}); ?>
+	</body>
+</html>

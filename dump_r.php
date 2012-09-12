@@ -299,7 +299,7 @@ dump_r::hook_string(function($input, $type) {
 // css
 ob_start();
 ?>
-<style>
+<style id="dump_r">
 	.dump_r {
 		clear: both;
 	}
@@ -320,13 +320,11 @@ ob_start();
 	}
 
 	.dump_r .excol {
-		font-size: 8pt;
 		position: absolute;
 		margin: 1px 0 0 -15px;
 		cursor: pointer;
 	}
 
-	.dump_r .expanded > .excol			{font-size: 10pt;}		/* for FF */
 	.dump_r .expanded > .excol:after	{content: "\25BC";}
 	.dump_r .collapsed > .excol:after	{content: "\25B6";}
 	.dump_r .collapsed > ul				{display: none;}
@@ -391,6 +389,33 @@ ob_start();
 ?>
 <script>
 	(function(){
+		/*--- all this for expand/collapse arrow size consistency ---*/
+		function isUa(re) {return re.test(window.navigator.userAgent);}
+
+		var ua = isUa(/Chrom[ei]/) ? "ch" : isUa(/Firefox\//) ? "ff" : isUa(/Safari/) ? "sf" : isUa(/Opera/) ? "op" : isUa(/; MSIE \d/) ? "ie" : "oth";
+
+		var cfg = {
+			ff: [10,8,null,null],
+			ch: [10,10,null,null],
+			sf: [10,8.5,null,null],
+			op: [11,8.5,11,11],
+			ie: [10,13.5,null,11]
+		};
+
+		var fn = "font-size: ",
+			ln = "line-height: ",
+			un = "pt",
+			c = cfg[ua],
+			fe = fn + c[0] + un,
+			fc = fn + c[1] + un,
+			le = c[2] ? ln + c[2] + un : "",
+			lc = c[3] ? ln + c[3] + un : "",
+			sheet = document.getElementById("dump_r").sheet;
+
+		sheet.insertRule(".dump_r .expanded  > .excol {" + [fe,le].join(";") + "}", 5);
+		sheet.insertRule(".dump_r .collapsed > .excol {" + [fc,lc].join(";") + "}", 5);
+		/*-----------------------------------------------------------*/
+
 		function toggle(e) {
 			if (e.which != 1) return;
 
@@ -400,6 +425,7 @@ ob_start();
 				});
 			}
 		}
+
 		document.addEventListener("click", toggle, false);
 	})();
 </script>
