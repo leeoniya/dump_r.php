@@ -128,10 +128,22 @@ class dump_r
 		$type->empty	= empty($input);
 		$type->numeric	= is_numeric($input);
 
-		// avoid detecting strings with names of global functions as callbacks
-		if (is_callable($input) && !(is_string($input) && function_exists($input))) {
+		// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
+		if (is_callable($input) && !(is_object($input) && !($input instanceof Closure)) && !(is_string($input) && function_exists($input))) {
 			$type->type		= 'function';
-			$type->disp		= 'fn()';
+
+			if (is_string($input))
+				$type->disp = "fn({$input})";
+			else if (is_array($input)) {
+				if (is_string($input[0]))
+					$type->disp = 'fn(' . implode(',', $input) . ')';
+				else
+					$type->disp = "fn(<obj>,{$input[1]})";
+			}
+			else if ($input instanceof Closure)
+				$type->disp = 'fn(<closure>)';
+			else
+				$type->disp = 'fn()';
 		}
 		else if (is_array($input)) {
 			$type->type		= 'array';

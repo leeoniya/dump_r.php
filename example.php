@@ -1,7 +1,11 @@
 <?php
 	include 'dump_r.php';
 
-	class lib {
+	class lib0 {
+		public static function myFn() {}
+	}
+
+	class lib extends lib0 {
 		public static function myFn() {}
 	}
 
@@ -16,6 +20,10 @@
 		public function  __construct() {
 			$this->self = $this;
 		}
+
+		public function myFn() {}
+
+		public function __invoke() {}
 	}
 
 	$obj = new myObject;
@@ -46,9 +54,12 @@
 	$obj->xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>');
 	$obj->afile = fopen(__FILE__, 'r');
 
-	$obj->call_anon = function($a) {};
-	$obj->call_static = 'lib::myFn';
-	$obj->call_array = array('lib' ,'myFn');
+	$obj->call_self = $obj;
+	$obj->call_closure = function($a) {};
+	$obj->call_inst_meth = array($obj, 'myFn');
+	$obj->call_static_str = 'lib::myFn';
+	$obj->call_static_arr = array('lib' ,'myFn');
+	$obj->call_static_par = array('lib' ,'parent::myFn');
 	$obj->notfn = 'pi';		// global functions are excluded in favor of not mis-interpreting strings
 
 	$sub = new stdClass;
