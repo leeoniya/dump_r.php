@@ -3,11 +3,10 @@
 * Copyright (c) 2012-2013, Leon Sorokin
 * All rights reserved. (MIT Licensed)
 *
-* dump_r.php
-* better than print_r()
-* better than var_dump()
-* for browsers
+* dump_r.php - a better print_r & var_dump in HTML
+* requires PHP >= 5.3
 */
+
 function dump_r($input, $exp_lvls = 1000, $classy = null)
 {
 	// get the input arg passed to the function
