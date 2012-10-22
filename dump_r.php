@@ -1,7 +1,7 @@
 <?php
 /**
-* Copyright (c) 2011, Leon Sorokin
-* All rights reserved.
+* Copyright (c) 2012-2013, Leon Sorokin
+* All rights reserved. (MIT Licensed)
 *
 * dump_r.php
 * better than print_r()
