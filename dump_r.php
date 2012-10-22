@@ -161,9 +161,16 @@ class dump_r
 		}
 		else if (is_resource($input)) {
 			$type->type		= 'resource';
+			$desc			= '';
 			$type->subtype	= get_resource_type($input);
-			preg_match('/#\d+/', (string)$input, $matches);
-			$type->disp		= $matches[0];
+			// feel free to implement additional resource types below from http://www.php.net/manual/en/resource.php
+			switch ($type->subtype) {
+				case 'stream':
+					$meta = stream_get_meta_data($input);
+					$desc = $meta['uri'];
+					break;
+			}
+			$type->disp = 'rs: ' . $desc;
 		}
 		else if (is_object($input)) {
 			$type->type		= 'object';
