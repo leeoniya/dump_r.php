@@ -323,6 +323,24 @@ dump_r::hook_string(function($input, $type) {
 	return false;
 }, 'is_datetime');
 
+/* example of adding extra info to streams and more still to files
+dump_r::hook_resource(function($input, $type) {
+	if ($type->subtype == 'stream') {
+		$meta = stream_get_meta_data($input);
+		$type->children = array(
+			'meta_data' => (object)$meta
+		);
+
+		if ($meta['wrapper_type'] == 'plainfile')
+			$type->children['stat'] = (object)stat($meta['uri']);
+
+		return true;		// skip any remaining hook_resource checks
+	}
+
+	return false;			// process additional hook_resource checks
+}, 'is_resource');
+*/
+
 // css
 ob_start();
 ?>
