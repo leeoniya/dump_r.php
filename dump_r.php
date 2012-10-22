@@ -130,28 +130,26 @@ class dump_r
 		// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
 		if (is_callable($input) && !(is_object($input) && !($input instanceof Closure)) && !(is_string($input) && function_exists($input))) {
 			$type->type		= 'function';
-			$desc			= '';
+			$type->disp		= '( )';
 
 			if (is_string($input)) {
-				$type->subtype = 'static';
-				$desc = $input;
+				$type->disp		= $input;
+				$type->subtype	= 'static';
 			}
 			else if (is_array($input)) {
 				if (is_string($input[0])) {
-					$type->subtype = 'static';
-					$desc = implode(',', $input);
+					$type->disp		= implode(',', $input);
+					$type->subtype	= 'static';
 				}
 				else {
-					$type->subtype = 'instance';
-					$desc = "<obj>,{$input[1]}";
+					$type->disp		= "<obj>,{$input[1]}";
+					$type->subtype	= 'instance';
 				}
 			}
 			else if ($input instanceof Closure) {
-				$type->subtype = 'closure';
-				$desc = '<closure>';
+				$type->disp		= '<closure>';
+				$type->subtype	= 'closure';
 			}
-
-			$type->disp = 'fn: ' . $desc;
 		}
 		else if (is_array($input)) {
 			$type->type		= 'array';
@@ -161,16 +159,18 @@ class dump_r
 		}
 		else if (is_resource($input)) {
 			$type->type		= 'resource';
-			$desc			= '';
 			$type->subtype	= get_resource_type($input);
+
+			preg_match('/#\d+/', (string)$input, $matches);
+			$type->disp		= $matches[0];
+
 			// feel free to implement additional resource types below from http://www.php.net/manual/en/resource.php
 			switch ($type->subtype) {
 				case 'stream':
 					$meta = stream_get_meta_data($input);
-					$desc = $meta['uri'];
+					$type->disp = $meta['uri'];
 					break;
 			}
-			$type->disp = 'rs: ' . $desc;
 		}
 		else if (is_object($input)) {
 			$type->type		= 'object';
