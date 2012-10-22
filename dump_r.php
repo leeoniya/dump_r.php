@@ -130,19 +130,28 @@ class dump_r
 		// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
 		if (is_callable($input) && !(is_object($input) && !($input instanceof Closure)) && !(is_string($input) && function_exists($input))) {
 			$type->type		= 'function';
+			$desc			= '';
 
-			if (is_string($input))
-				$type->disp = "fn({$input})";
-			else if (is_array($input)) {
-				if (is_string($input[0]))
-					$type->disp = 'fn(' . implode(',', $input) . ')';
-				else
-					$type->disp = "fn(<obj>,{$input[1]})";
+			if (is_string($input)) {
+				$type->subtype = 'static';
+				$desc = $input;
 			}
-			else if ($input instanceof Closure)
-				$type->disp = 'fn(<closure>)';
-			else
-				$type->disp = 'fn()';
+			else if (is_array($input)) {
+				if (is_string($input[0])) {
+					$type->subtype = 'static';
+					$desc = implode(',', $input);
+				}
+				else {
+					$type->subtype = 'instance';
+					$desc = "<obj>,{$input[1]}";
+				}
+			}
+			else if ($input instanceof Closure) {
+				$type->subtype = 'closure';
+				$desc = '<closure>';
+			}
+
+			$type->disp = 'fn: ' . $desc;
 		}
 		else if (is_array($input)) {
 			$type->type		= 'array';
