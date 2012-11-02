@@ -477,21 +477,19 @@ ob_start();
 		}
 
 		function toggleHandler(e) {
-			if (e.which != 1) return;
+			if (e.which != 1 || e.target.className.indexOf("excol") == -1) return;
 
-			if (e.target.className.indexOf("excol") !== -1) {
-				var node = e.target.parentNode,
-					actn = node.className.indexOf("collapsed") !== -1 ? 1 : 0,
-					lvls = e.shiftKey ? 1000 : 1;
+			var node = e.target.parentNode,
+				actn = node.className.indexOf("collapsed") !== -1 ? 1 : 0,
+				lvls = e.shiftKey ? 1000 : 1;
 
-				toggle(actn, node, lvls);
+			toggle(actn, node, lvls);
 
-				// toggle all following siblings
-				if (e.ctrlKey) {
-					while (node.nextSibling) {
-						node = node.nextSibling;
-						toggle(actn, node, lvls);
-					}
+			// toggle all following siblings
+			if (e.ctrlKey) {
+				while (node.nextSibling) {
+					node = node.nextSibling;
+					toggle(actn, node, lvls);
 				}
 			}
 		}
