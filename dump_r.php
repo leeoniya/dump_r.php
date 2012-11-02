@@ -461,17 +461,42 @@ ob_start();
 		sheet.insertRule(".dump_r .collapsed > .excol {" + [fc,lc].join(";") + "}", 5);
 		/*-----------------------------------------------------------*/
 
-		function toggle(e) {
-			if (e.which != 1) return;
+		// expandable or collapsible tester
+		var re = /\bexpanded\b|\bcollapsed\b/;
 
-			if (e.target.className.indexOf("excol") !== -1) {
-				e.target.parentNode.className = e.target.parentNode.className.replace(/\bexpanded\b|\bcollapsed\b/, function(m) {
-					return m == "collapsed" ? "expanded" : "collapsed";
-				});
+		function toggle(actn, node, lvls) {
+			if (lvls === 0 || !re.test(node.className)) return;
+
+			node.className = node.className.replace(actn ? /\bcollapsed\b/ : /\bexpanded\b/, actn ? "expanded" : "collapsed");
+
+			for (var i in node.childNodes) {
+				if (node.childNodes[i].nodeName !== "UL") continue;
+				for (var j in node.childNodes[i].childNodes)
+					toggle(actn, node.childNodes[i].childNodes[j], lvls - 1);
 			}
 		}
 
-		document.addEventListener("click", toggle, false);
+		function toggleHandler(e) {
+			if (e.which != 1) return;
+
+			if (e.target.className.indexOf("excol") !== -1) {
+				var node = e.target.parentNode,
+					actn = node.className.indexOf("collapsed") !== -1 ? 1 : 0,
+					lvls = e.shiftKey ? 1000 : 1;
+
+				toggle(actn, node, lvls);
+
+				// toggle all following siblings
+				if (e.ctrlKey) {
+					while (node.nextSibling) {
+						node = node.nextSibling;
+						toggle(actn, node, lvls);
+					}
+				}
+			}
+		}
+
+		document.addEventListener("click", toggleHandler, false);
 	})();
 </script>
 <?php
