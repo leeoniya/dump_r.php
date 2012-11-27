@@ -30,6 +30,8 @@ class dump_r
 	public static $js;
 	public static $hooks = array();
 	public static $classy = null;
+	public static $xml_pretty = true;
+	public static $json_pretty = true;
 
 	// creates an internal dump representation
 	public static function struct($inp, &$dict = array())
@@ -284,6 +286,11 @@ dump_r::hook_string(function($input, $type) {
 		$input = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $input));
 
 		if ($xml = simplexml_load_string($input)) {
+			if (dump_r::$xml_pretty) {
+				$dom = dom_import_simplexml($xml)->ownerDocument;
+				$dom->formatOutput = true;
+				$type->disp = $dom->saveXML();
+			}
 			$type->subtype	= 'XML';
 			$type->children = (array)$xml;
 			// dont show length, or find way to detect uniform subnodes and treat as XML [] vs XML {}
@@ -300,6 +307,9 @@ dump_r::hook_string(function($input, $type) {
 
 dump_r::hook_string(function($input, $type) {
 	if ($type->length > 0 && ($input{0} == '{' || $input{0} == '[') && ($json = json_decode($input))) {
+		if (dump_r::$json_pretty)
+			$type->disp = json_encode($json, JSON_PRETTY_PRINT);
+
 		// maybe set subtype as JSON [] or JSON {}, will screw up classname
 		$type->subtype	= 'JSON';
 		$type->children = (array)$json;
