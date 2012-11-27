@@ -1,0 +1,22 @@
+{
+    "name": "leeoniya/dump-r",
+    "description": "a cleaner, leaner mix of print_r() and var_dump() for the browser",
+    "keywords": ["print_r", "var_dump", "debug", "pretty", "print", "dump"],
+    "type": "library",
+    "homepage": "https://github.com/leeoniya/dump_r.php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Leon Sorokin",
+            "email": "leeoniya@gmail.com",
+            "homepage": "https://github.com/leeoniya",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "files": ["dump_r.php"]
+    }
+}
