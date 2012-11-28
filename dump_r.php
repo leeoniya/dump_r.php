@@ -30,8 +30,8 @@ class dump_r
 	public static $js;
 	public static $hooks = array();
 	public static $classy = null;
-	public static $xml_pretty = true;
-	public static $json_pretty = true;
+	public static $xml_pretty = false;
+	public static $json_pretty = false;
 
 	// creates an internal dump representation
 	public static function struct($inp, &$dict = array())
