@@ -23,6 +23,15 @@ __both lack__
   - resource dumping
   - decomposing XML/JSON/SQL stings on-the-fly
 
+--
+
+__2012-11-27__
+now installable through [Composer](http://getcomposer.org/)
+_require: "leeoniya/dump-r": "dev-master"_
+https://packagist.org/packages/leeoniya/dump-r
+
+--
+
 __default output and css syling__
 
 ![screenshot](https://github.com/leeoniya/dump_r.php/raw/master/th_dump_r.png "example.php")  
