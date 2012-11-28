@@ -25,9 +25,9 @@ __both lack__
 
 --
 
-__2012-11-27__
-now installable through [Composer](http://getcomposer.org/)
-_require: "leeoniya/dump-r": "dev-master"_
+__2012-11-27__  
+now installable through [Composer](http://getcomposer.org/)  
+_require: "leeoniya/dump-r": "dev-master"_  
 https://packagist.org/packages/leeoniya/dump-r
 
 --
