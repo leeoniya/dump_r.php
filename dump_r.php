@@ -18,7 +18,7 @@ function dump_r($input, $exp_lvls = 1000, $classy = null)
 
 	dump_r::$classy = $classy;
 
-	echo dump_r::render(dump_r::struct($input), $m[1], $exp_lvls);
+	echo dump_r::render(dump_r::struct($input), $m[1], $exp_lvls, true, 1, $src);
 }
 
 class dump_r
@@ -65,7 +65,7 @@ class dump_r
 		return $o;
 	}
 
-	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true, $ln = 1)
+	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true, $ln = 1, $bktrc = null)
 	{
 		// track max key width (8px/char)
 		self::$keyWidth = max(self::$keyWidth, strlen($key) * 8);
@@ -76,8 +76,10 @@ class dump_r
 			self::$initial = false;
 		}
 
+		$where = $bktrc !== null ? "<div class=\"file-line\">{$bktrc->file} (line {$bktrc->line})</div>" : '';
+
 		$buf = '';
-		$buf .= $st ? "{$inject}<pre class=\"dump_r\"><ul>" : '';
+		$buf .= $st ? "{$inject}<pre class=\"dump_r\">{$where}<ul>" : '';
 		$s = &$struct;
 		$disp = htmlspecialchars($s->disp);
 
@@ -357,6 +359,13 @@ ob_start();
 <style id="dump_r">
 	.dump_r {
 		clear: both;
+	}
+
+	.dump_r .file-line {
+		font-weight: bold;
+		background: #c6c6c6;
+		padding: 0 3px;
+		margin: 2px 0;
 	}
 
 	.dump_r ul {
