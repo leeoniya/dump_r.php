@@ -372,6 +372,7 @@ ob_start();
 <style id="dump_r">
 	.dump_r {
 		clear: both;
+		display: inline-block;
 	}
 
 	.dump_r .file-line {
