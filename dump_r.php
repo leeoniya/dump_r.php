@@ -26,6 +26,7 @@ class dump_r
 	// indicator for injecting css/js on first dump
 	public static $initial	= true;
 	public static $keyWidth	= 0;
+	public static $chrWidth = 8;
 	public static $css;
 	public static $js;
 	public static $hooks = array();
@@ -68,7 +69,7 @@ class dump_r
 	public static function render($struct, $key = 'root', $vis = 2, $exp_lvls = 1000, $st = true, $ln = 1, $bktrc = null)
 	{
 		// track max key width (8px/char)
-		self::$keyWidth = max(self::$keyWidth, strlen($key) * 8);
+		self::$keyWidth = max(self::$keyWidth, strlen($key) * self::$chrWidth);
 
 		$inject = '';
 		if (self::$initial) {
