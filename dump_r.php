@@ -415,7 +415,7 @@ ob_start();
 	.dump_r .collapsed > .excol:after	{content: "\25B6";}
 	.dump_r .collapsed > ul				{display: none;}
 
-	.dump_r .lbl						{position: relative; padding-left: 3px; padding-right: 5px;}
+	.dump_r .lbl						{position: relative; padding: 0 3px;}
 	.dump_r .lbl > *					{display: inline-block;}
 
 
@@ -427,12 +427,15 @@ ob_start();
 	.dump_r .typ,
 	.dump_r .sub,
 	.dump_r .len						{color: #666666; margin-right: 5px;}
+	.dump_r .lbl > div:last-child		{margin-right: 0;}
+
 
 	.dump_r .typ						{display: none;}
 
 	.dump_r .protected .key				{color: #5800B8;}
 	.dump_r .private .key				{color: #A32B2B;}
 
+	.dump_r .empty			> .lbl .val {}
 	.dump_r .array			> .lbl .val {background-color: #C0BCFF;}
 	.dump_r .object			> .lbl .val {background-color: #98FB98;}
 	.dump_r .function		> .lbl .val {background-color: #FAFF5C;}
