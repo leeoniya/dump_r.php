@@ -18,7 +18,7 @@ function dump_r($input, $exp_lvls = 1000, $classy = null)
 
 	dump_r::$classy = $classy;
 
-	echo dump_r::render(dump_r::struct($input), $m[1], $exp_lvls, true, 1, $src);
+	echo dump_r::render(dump_r::struct($input), $m[1], 2, $exp_lvls, true, 1, $src);
 }
 
 class dump_r
@@ -65,7 +65,7 @@ class dump_r
 		return $o;
 	}
 
-	public static function render($struct, $key = 'root', $exp_lvls = 1000, $st = true, $ln = 1, $bktrc = null)
+	public static function render($struct, $key = 'root', $vis = 2, $exp_lvls = 1000, $st = true, $ln = 1, $bktrc = null)
 	{
 		// track max key width (8px/char)
 		self::$keyWidth = max(self::$keyWidth, strlen($key) * 8);
@@ -96,12 +96,13 @@ class dump_r
 		$empty		= $s->empty		? ' empty'			: '';
 		$numeric	= $s->numeric	? ' numeric'		: '';
 		$subtype	= $s->subtype	? " $s->subtype"	: '';
+		$privprot	= $vis === 1	? ' protected'		: ($vis === 0 ? ' private' : '');
 		$classes	= $s->classes	? ' ' . implode(' ', $s->classes) : '';
-		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$classes}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
+		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$privprot}{$classes}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
-				$buf .= self::render($s2, $k, $exp_lvls - 1, false, $ln++);
+				$buf .= self::render($s2, $k, $s->childvis[$k], $exp_lvls - 1, false, $ln++);
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
@@ -120,6 +121,7 @@ class dump_r
 			'numeric'		=> null,
 			'length'		=> null,
 			'children'		=> null,
+			'childvis'		=> null,
 			'classes'		=> null,
 		);
 	}
@@ -181,11 +183,21 @@ class dump_r
 			$type->disp		= '{ }';
 			$type->subtype	= get_class($input);
 			$type->children	= array();
+			$type->childvis	= array();
 
-			$childs	= (array)$input;		// hacks access to protected and private props
+			// hack access to protected and private props
+			$childs	= (array)$input;
 			foreach ($childs as $k => $v) {
-				// clean up odd chars left in private/protected names
-				$k = preg_replace("/[^\w]?(?:{$type->subtype})?[^\w]?/", '', $k);
+				// set visibility. 2 = public
+				$vis = 2;
+				if (preg_match('/\x0(\w+|\*)\x0/', $k, $m)) {
+					// clean up NUL, *, className
+					$k = str_replace("\x00{$m[1]}\x00", '', $k);
+					// adjust vis. 1 = protected, 0 = private
+					$vis = $m[1] === '*' ? 1 : 0;
+				}
+
+				$type->childvis[$k] = $vis;
 				$type->children[$k] = $v;
 			}
 		}
@@ -407,6 +419,9 @@ ob_start();
 	.dump_r .len						{color: #666666; margin-right: 5px;}
 
 	.dump_r .typ						{display: none;}
+
+	.dump_r .protected .key				{color: #5800B8;}
+	.dump_r .private .key				{color: #A32B2B;}
 
 	.dump_r .array			> .lbl .val {background-color: #C0BCFF;}
 	.dump_r .object			> .lbl .val {background-color: #98FB98;}
