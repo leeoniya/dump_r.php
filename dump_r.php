@@ -80,7 +80,12 @@ class dump_r
 		$where = $bktrc !== null ? "<div class=\"file-line\">{$bktrc->file} (line {$bktrc->line})</div>" : '';
 
 		$buf = '';
-		$buf .= $st ? "{$inject}<pre class=\"dump_r\">{$where}<ul>" : '';
+
+		if ($st) {
+			$dump_id = 'dump-' . rand(100, 999);
+			$buf .= "{$inject}<pre class=\"dump_r\" id=\"{$dump_id}\">{$where}<ul>";
+		}
+
 		$s = &$struct;
 		$disp = htmlspecialchars($s->disp);
 
@@ -107,7 +112,10 @@ class dump_r
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
-		$buf .= $st ? '</ul><style>.dump_r .key {min-width: ' . self::$keyWidth . 'px;}</style></pre>' : '';
+		if ($st) {
+			$buf .= "</ul><style>#{$dump_id} .key {min-width: " . self::$keyWidth . 'px;}</style></pre>';
+			self::$keyWidth = 0;	// reset
+		}
 
 		return $buf;
 	}
