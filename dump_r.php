@@ -7,7 +7,7 @@
 * requires PHP >= 5.3
 */
 
-function dump_r($input, $expand = 1000, $classy = null)
+function dump_r($input, $expand = 1000, $depth = 1000, $ret = false)
 {
 	// get the input arg passed to the function
 	$src = debug_backtrace();
@@ -16,11 +16,16 @@ function dump_r($input, $expand = 1000, $classy = null)
 	$line = $file[$src->line - 1];
 	preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
 
-	dump_r::$classy = $classy;
+//	dump_r::$classy = $classy;
 
 	$struct = dump_r::struct($input, $depth);
 
-	echo dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
+	$out = dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
+
+	if ($ret)
+		return $out;
+
+	echo $out;
 }
 
 class dump_r
@@ -32,12 +37,12 @@ class dump_r
 	public static $css;
 	public static $js;
 	public static $hooks = array();
-	public static $classy = null;
+//	public static $classy = null;
 	public static $xml_pretty = false;
 	public static $json_pretty = false;
 
 	// creates an internal dump representation
-	public static function struct($inp, &$dict = array())
+	public static function struct($inp, $depth = 1000, &$dict = array())
 	{
 		// detect references to existing objects + recursion
 		if (is_object($inp)) {
@@ -61,9 +66,14 @@ class dump_r
 
 		if (empty($o->children))
 			return $o;
+		else if ($depth == 0) {
+			$o->depthlim = true;
+			$o->children = null;
+			return $o;
+		}
 
 		foreach ($o->children as $k => $v)
-			$o->children[$k] = self::struct($v, $dict);
+			$o->children[$k] = self::struct($v, $depth - 1, $dict);
 
 		return $o;
 	}
@@ -105,8 +115,9 @@ class dump_r
 		$numeric	= $s->numeric	? ' numeric'		: '';
 		$subtype	= $s->subtype	? " $s->subtype"	: '';
 		$privprot	= $vis === 1	? ' protected'		: ($vis === 0 ? ' private' : '');
+		$depthlim	= $s->depthlim	? ' depthlim'		: '';
 		$classes	= $s->classes	? ' ' . implode(' ', $s->classes) : '';
-		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$privprot}{$classes}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
+		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$privprot}{$classes}{$depthlim}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
@@ -133,6 +144,7 @@ class dump_r
 			'length'		=> null,
 			'children'		=> null,
 			'childvis'		=> null,
+			'depthlim'		=> null,
 			'classes'		=> null,
 		);
 	}
@@ -233,7 +245,7 @@ class dump_r
 
 		if (array_key_exists($type->type, self::$hooks))
 			self::proc_hooks($type->type, $input, $type);
-
+/*
 		if (is_callable(self::$classy)) {
 			$classes = call_user_func(self::$classy, $input);
 			if (is_string($classes))
@@ -241,7 +253,7 @@ class dump_r
 			if (is_array($classes))
 				$type->classes = $classes;
 		}
-
+*/
 		return $type;
 	}
 

@@ -81,12 +81,12 @@
 		<h2>no depth restriction</h2>
 		<?php dump_r($obj); ?>
 
-		<h2>with depth restriction + custom marking</h2>
+		<h2>with pre-expand/recursion depth limits</h2>
 		<style>
 			.dump_r .myVals > * {
 				background: lightyellow !important;
 			}
 		</style>
-		<?php dump_r($obj, 1, function($inp) {return $inp == '999' || $inp == '123456' ? 'myVals' : '';}); ?>
+		<?php dump_r($obj, 1, 2); ?>
 	</body>
 </html>
