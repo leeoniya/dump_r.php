@@ -7,7 +7,7 @@
 * requires PHP >= 5.3
 */
 
-function dump_r($input, $exp_lvls = 1000, $classy = null)
+function dump_r($input, $expand = 1000, $classy = null)
 {
 	// get the input arg passed to the function
 	$src = debug_backtrace();
@@ -18,7 +18,7 @@ function dump_r($input, $exp_lvls = 1000, $classy = null)
 
 	dump_r::$classy = $classy;
 
-	echo dump_r::render(dump_r::struct($input), $m[1], 2, $exp_lvls, true, 1, $src);
+	echo dump_r::render(dump_r::struct($input), $m[1], 2, $expand, true, 1, $src);
 }
 
 class dump_r
@@ -66,7 +66,7 @@ class dump_r
 		return $o;
 	}
 
-	public static function render($struct, $key = 'root', $vis = 2, $exp_lvls = 1000, $st = true, $ln = 1, $bktrc = null)
+	public static function render($struct, $key = 'root', $vis = 2, $expand = 1000, $st = true, $ln = 1, $bktrc = null)
 	{
 		// track max key width (8px/char)
 		self::$keyWidth = max(self::$keyWidth, strlen($key) * self::$chrWidth);
@@ -98,7 +98,7 @@ class dump_r
 		$len = !is_null($s->length) ? "<div class=\"len\">{$s->length}</div>" : '';
 		$sub = !is_null($s->subtype) ? "<div class=\"sub\">{$s->subtype}</div>" : '';
 		$excol = !empty($s->children) ? '<div class="excol"></div>' : '';
-		$exp_state = $excol ? ($exp_lvls > 0 ? ' expanded' : ' collapsed') : '';
+		$exp_state = $excol ? ($expand > 0 ? ' expanded' : ' collapsed') : '';
 		$empty		= $s->empty		? ' empty'			: '';
 		$numeric	= $s->numeric	? ' numeric'		: '';
 		$subtype	= $s->subtype	? " $s->subtype"	: '';
@@ -108,7 +108,7 @@ class dump_r
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
-				$buf .= self::render($s2, $k, $s->childvis[$k], $exp_lvls - 1, false, $ln++);
+				$buf .= self::render($s2, $k, $s->childvis[$k], $expand - 1, false, $ln++);
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
