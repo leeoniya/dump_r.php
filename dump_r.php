@@ -18,7 +18,9 @@ function dump_r($input, $expand = 1000, $classy = null)
 
 	dump_r::$classy = $classy;
 
-	echo dump_r::render(dump_r::struct($input), $m[1], 2, $expand, true, 1, $src);
+	$struct = dump_r::struct($input, $depth);
+
+	echo dump_r::renderHTML($struct, $m[1], 2, $expand, true, 1, $src);
 }
 
 class dump_r
@@ -66,7 +68,7 @@ class dump_r
 		return $o;
 	}
 
-	public static function render($struct, $key = 'root', $vis = 2, $expand = 1000, $st = true, $ln = 1, $bktrc = null)
+	public static function renderHTML($struct, $key = 'root', $vis = 2, $expand = 1000, $st = true, $ln = 1, $bktrc = null)
 	{
 		// track max key width (8px/char)
 		self::$keyWidth = max(self::$keyWidth, strlen($key) * self::$chrWidth);
@@ -108,7 +110,7 @@ class dump_r
 		if ($s->children) {
 			$buf .= '<ul>';
 			foreach ($s->children as $k => $s2)
-				$buf .= self::render($s2, $k, $s->childvis[$k], $expand - 1, false, $ln++);
+				$buf .= self::renderHTML($s2, $k, $s->childvis[$k], $expand - 1, false, $ln++);
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
