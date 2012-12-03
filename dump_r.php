@@ -20,7 +20,10 @@ function dump_r($input, $expand = 1000, $depth = 1000, $ret = false)
 
 	$struct = dump_r::struct($input, $depth);
 
-	$out = dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
+	if (PHP_SAPI == 'cli' || $ret)
+		$out = dump_r::renderTEXT($input);
+	else
+		$out = dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
 
 	if ($ret)
 		return $out;
@@ -76,6 +79,22 @@ class dump_r
 			$o->children[$k] = self::struct($v, $depth - 1, $dict);
 
 		return $o;
+	}
+
+	// TODO: to be written (with same args renderHTML)
+	public static function renderTEXT($input)
+	{
+		$varname = 'html_errors';
+		$cfg_errs = ini_get($varname);
+
+		ini_set($varname, 0);
+		ob_start();
+		var_dump($input);
+		$out = ob_get_flush();
+
+		ini_set($varname, $cfg_errs);
+
+		return $out;
 	}
 
 	public static function renderHTML($struct, $key = 'root', $vis = 2, $expand = 1000, $st = true, $bktrc = null)
