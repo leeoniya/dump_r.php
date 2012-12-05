@@ -41,9 +41,10 @@
 	$obj->address->city = 'Chicago';
 	$obj->ref_to_addr = $obj->address;
 	$obj->kids = array(
-		0		=> 'blah',
-		'a'		=> null,
-		'xxx'	=> new myObject,
+		'multiln_str'	=> "Lorem Ipsum is simply \ndummy text of the printing\nand typesetting industry",
+		0				=> 'blah',
+		'a'				=> null,
+		'xxx'			=> new myObject,
 	);
 	$obj->date_str = '2011-12-13 15:25:03';
 	$obj->not_date = '123456';
