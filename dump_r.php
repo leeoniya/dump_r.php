@@ -97,8 +97,13 @@ class dump_r
 		$ch = !empty($s->children);
 		if ($s->type == 'object' || $s->type == 'array')
 			$value = $s->disp;
-		else if ($s->type == 'string')
-			$value = "'{$value}'";
+		else if ($s->type == 'string') {
+			// tmp convert multiline to single line
+			if (strpos($value, "\r") !== false || strpos($value, "\n") !== false)
+				$value = 'tmpJSON|' . json_encode($value);
+			else
+				$value = "'{$value}'";
+		}
 		else if ($s->type == 'ref') {
 			if (is_object($s->ref))
 				$value = '{*}';
@@ -140,8 +145,24 @@ class dump_r
 
 			$all2 = '';
 			$len = self::$keyWidth + 4;
-			foreach ($mat as $i => $v)
-				$all2 .= $v[1] . str_pad($v[2], $len, ' ') . $v[3] . "\n";
+			foreach ($mat as $i => $v) {
+				// key + value's first line padding
+				$all2 .= $v[1] . str_pad($v[2], $len, ' ');
+				// multiline
+				if (preg_match('/^tmpJSON\|(".*")(\s+.*)/m', $v[3], $mat2)) {
+					// indent remaining lines
+					$str = "'" . json_decode($mat2[1]) . "'"; $i = 0;
+					$all2 .= preg_replace_callback('/^.*/m', function($m) use (&$i, $v, $len) {
+						if ($i++ == 0) return $m[0];
+						return str_repeat(' ', $len) . $v[1] . $m[0];
+					}, $str);
+					$all2 .= $mat2[2];
+				}
+				else
+					$all2 .= $v[3];
+
+				$all2.= "\n";
+			}
 
 			$loc = $bktrc !== null ? "{$bktrc->file} (line {$bktrc->line})" : '';
 			$loc .= strlen($loc) ? "\n" . str_repeat('-', strlen($loc)) . "\n" : '';
