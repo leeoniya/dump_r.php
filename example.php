@@ -88,5 +88,17 @@
 			}
 		</style>
 		<?php dump_r($obj, 1, 2); ?>
+
+		<h2>text-only for console and logging</h2>
+		<pre><?php
+			$ascii = dump_r($obj, 1, 1000, true);
+			echo htmlspecialchars($ascii, ENT_NOQUOTES);
+		?></pre>
+
+		<h2>text-only w/recursion depth limits</h2>
+		<pre><?php
+			$ascii = dump_r($obj, 1, 1, true);
+			echo htmlspecialchars($ascii, ENT_NOQUOTES);
+		?></pre>
 	</body>
 </html>

@@ -21,7 +21,7 @@ function dump_r($input, $expand = 1000, $depth = 1000, $ret = false)
 	$struct = dump_r::struct($input, $depth);
 
 	if (PHP_SAPI == 'cli' || $ret)
-		$out = dump_r::renderTEXT($input);
+		$out = dump_r::renderTEXT($struct, $m[1], 2, 0, true, $src);
 	else
 		$out = dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
 
@@ -81,20 +81,77 @@ class dump_r
 		return $o;
 	}
 
-	// TODO: to be written (with same args renderHTML)
-	public static function renderTEXT($input)
+	public static function indent($str, $num, $eol = true, $chars = "  ")
 	{
-		$varname = 'html_errors';
-		$cfg_errs = ini_get($varname);
+		return str_repeat($chars, $num) . $str . ($eol ? "\n" : '');
+	}
 
-		ini_set($varname, 0);
-		ob_start();
-		var_dump($input);
-		$out = ob_get_flush();
+	public static function renderTEXT($struct, $key = 'root', $vis = 2, $depth = 0, $st = true, $bktrc = null)
+	{
+		self::$keyWidth = max(self::$keyWidth, strlen($key));
 
-		ini_set($varname, $cfg_errs);
+		$s = &$struct;
 
-		return $out;
+		$label = $key;
+		$value = $s->disp;
+		$ch = !empty($s->children);
+		if ($s->type == 'object' || $s->type == 'array')
+			$value = $s->disp;
+		else if ($s->type == 'string')
+			$value = "'{$value}'";
+		else if ($s->type == 'ref') {
+			if (is_object($s->ref))
+				$value = '{*}';
+			else if (is_array($s->ref))
+				$value = '[*]';
+		}
+
+		// subtype exceptions + tweaks
+		$subtype = $s->subtype;
+		if ($s->type == 'object' && $s->subtype == 'stdClass')
+			$subtype = '';
+		else if ($s->type == 'resource')
+			$subtype = 'rsrc, ' . $subtype;
+		else if ($s->type == 'string' && $s->subtype == 'datetime')
+			$subtype = strlen($s->disp) . ', ' . $subtype;
+
+		// extras to be appended to value display
+		$extra = array();
+
+		if ($subtype)
+			$extra[] = $subtype;
+		if ($s->length)
+			$extra[] = $s->length;
+
+		$value .= !empty($extra) ? ' (' . implode(', ', $extra) . ')' : '';
+
+		// process sub-nodes
+		$cbuf = '';
+		if ($ch) {
+			foreach ($s->children as $k => $s2) {
+				$v = self::renderTEXT($s2, $k, $s->childvis[$k], $depth + 1, false);
+				$cbuf .= self::indent($v[0] . '=' . $v[1], $depth + 1) . $v[2];
+			}
+		}
+
+		if ($st) {
+			$all = self::indent($label . '=' . $value, $depth, $ch) . $cbuf;
+			preg_match_all('/^(\s*)(.*?)=(.*?)$/m', $all, $mat, PREG_SET_ORDER);
+
+			$all2 = '';
+			$len = self::$keyWidth + 4;
+			foreach ($mat as $i => $v)
+				$all2 .= $v[1] . str_pad($v[2], $len, ' ') . $v[3] . "\n";
+
+			$loc = $bktrc !== null ? "{$bktrc->file} (line {$bktrc->line})" : '';
+			$loc .= strlen($loc) ? "\n" . str_repeat('-', strlen($loc)) . "\n" : '';
+
+			self::$keyWidth = 0;
+
+			return "\n" . $loc . $all2;
+		}
+
+		return array($label, $value, $cbuf);
 	}
 
 	public static function renderHTML($struct, $key = 'root', $vis = 2, $expand = 1000, $st = true, $bktrc = null)
