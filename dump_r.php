@@ -108,12 +108,11 @@ class dump_r
 			self::$initial = false;
 		}
 
-		$where = $bktrc !== null ? "<div class=\"file-line\">{$bktrc->file} (line {$bktrc->line})</div>" : '';
-
 		$buf = '';
 
 		if ($st) {
 			$dump_id = 'dump-' . rand(100, 999);
+			$where = $bktrc !== null ? "<div class=\"file-line\">{$bktrc->file} (line {$bktrc->line})</div>" : '';
 			$buf .= "{$inject}<pre class=\"dump_r\" id=\"{$dump_id}\">{$where}<ul>";
 		}
 
@@ -161,10 +160,10 @@ class dump_r
 			'empty'			=> null,
 			'numeric'		=> null,
 			'length'		=> null,
-			'children'		=> null,
 			'childvis'		=> null,
 			'depthlim'		=> null,
 			'classes'		=> null,
+			'children'		=> null,
 		);
 	}
 
