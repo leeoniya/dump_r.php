@@ -21,7 +21,7 @@ function dump_r($input, $expand = 1000, $depth = 1000, $ret = false)
 	$struct = dump_r::struct($input, $depth);
 
 	if (PHP_SAPI == 'cli' || $ret)
-		$out = dump_r::renderTEXT($struct, $m[1], 2, 0, true, $src);
+		$out = dump_r::renderText($struct, $m[1], 2, 0, true, $src);
 	else
 		$out = dump_r::renderHTML($struct, $m[1], 2, $expand, true, $src);
 
@@ -86,7 +86,7 @@ class dump_r
 		return str_repeat($chars, $num) . $str . ($eol ? "\n" : '');
 	}
 
-	public static function renderTEXT($struct, $key = 'root', $vis = 2, $depth = 0, $st = true, $bktrc = null)
+	public static function renderText($struct, $key = 'root', $vis = 2, $depth = 0, $st = true, $bktrc = null)
 	{
 		self::$keyWidth = max(self::$keyWidth, strlen($key));
 
@@ -134,7 +134,7 @@ class dump_r
 		$cbuf = '';
 		if ($ch) {
 			foreach ($s->children as $k => $s2) {
-				$v = self::renderTEXT($s2, $k, $s->childvis[$k], $depth + 1, false);
+				$v = self::renderText($s2, $k, $s->childvis[$k], $depth + 1, false);
 				$cbuf .= self::indent($v[0] . '=' . $v[1], $depth + 1) . $v[2];
 			}
 		}
