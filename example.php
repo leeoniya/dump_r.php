@@ -9,6 +9,14 @@
 		public static function myFn() {}
 	}
 
+	class Account {
+		function __construct($props) {
+			foreach($props as $k => $v) {
+				$this->$k = $v;
+			}
+		}
+	}
+
 	class myObject {
 		public		$cow_publ = 999;
 		protected	$moo_prot = 666;
@@ -49,6 +57,12 @@
 	$obj->date_str = '2011-12-13 15:25:03';
 	$obj->not_date = '123456';
 	$obj->otherSet = array();
+	$obj->moaarSet = array(
+		new Account(array('name'=>'john','active'=>true,'deposit'=>531.34)),
+		new Account(array('name'=>'mary','active'=>false,'deposit'=>95.15)),
+		new Account(array('name'=>'michael','active'=>false,'deposit'=>12.21)),
+		new Account(array('name'=>'charles','active'=>true,'deposit'=>1.01)),
+	);
 	$obj->isFull = false;
 	$obj->food = null;
 	$obj->dom = new DOMDocument;

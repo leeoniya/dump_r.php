@@ -43,6 +43,7 @@ class dump_r
 //	public static $classy = null;
 	public static $xml_pretty = false;
 	public static $json_pretty = false;
+	public static $detect_recarr = true;
 
 	// creates an internal dump representation
 	public static function struct($inp, $depth = 1000, &$dict = array())
@@ -216,8 +217,12 @@ class dump_r
 		$buf .= "<li class=\"{$s->type}{$subtype}{$numeric}{$empty}{$privprot}{$classes}{$depthlim}{$exp_state}\">{$excol}<div class=\"lbl\"><div class=\"key\">{$key}</div><div class=\"val\">{$disp}</div><div class=\"typ\">({$s->type})</div>{$sub}{$len}</div>";
 		if ($s->children) {
 			$buf .= '<ul>';
-			foreach ($s->children as $k => $s2)
-				$buf .= self::renderHTML($s2, $k, $s->childvis[$k], $expand - 1, false);
+			if ($s->subtype == 'recordarr' && !$s->children[0]->depthlim)
+				$buf .= self::renderRecordTableHTML($s->children);
+			else {
+				foreach ($s->children as $k => $s2)
+					$buf .= self::renderHTML($s2, $k, $s->childvis[$k], $expand - 1, false);
+			}
 			$buf .= '</ul>';
 		}
 		$buf .= '</li>';
@@ -225,6 +230,35 @@ class dump_r
 			$buf .= "</ul><style>#{$dump_id} .key {min-width: " . self::$keyWidth . 'px;}</style></pre>';
 			self::$keyWidth = 0;	// reset
 		}
+
+		return $buf;
+	}
+
+	public static function renderRecordTableHTML($struct)
+	{
+		$buf  = '<li>';
+		$buf .= '<table>';
+		$buf .= '<tr>';
+		$buf .= '<th style="text-align: left;">#</th>';
+		foreach ($struct[0]->children as $k => $v)
+			$buf .= "<th>{$k}</th>";
+		$buf .= '<th></th>';
+		$buf .= '</tr>';
+		foreach ($struct as $i => $row) {
+			$buf .= '<tr>';
+			$buf .= "<th class=\"key\">{$i}</th>";
+			foreach ($row->children as $k => $v) {
+				$empty		= $v->empty		? ' empty'			: '';
+				$numeric	= $v->numeric	? ' numeric'		: '';
+				$subtype	= $v->subtype	? " {$subtype}"		: '';
+				$disp = htmlspecialchars($v->disp, ENT_NOQUOTES);
+				$buf .= "<td><span class=\"{$v->type}{$subtype}{$numeric}{$empty}\"><span class=\"lbl\"><span class=\"val\">{$disp}</span></span></span></td>";
+			}
+			$buf .= "<td><span class=\"{$row->type}\"><span class=\"lbl\"><span class=\"val\">{$row->disp}</span><span class=\"typ\">{$row->type}</span><span class=\"sub\">{$row->subtype}</span></span></span></td>";
+			$buf .= '</tr>';
+		}
+		$buf .= '</table>';
+		$buf .= '</li>';
 
 		return $buf;
 	}
@@ -466,6 +500,43 @@ dump_r::hook_string(function($input, $type) {
 	return false;
 }, 'is_datetime');
 
+// recordset detection
+// indexed array of simple objects or assoc arrays
+// TODO: avoid doing this when already inside a detected recordset
+dump_r::hook_array(function($input, $type) {
+	$rs = false;
+
+	if (dump_r::$detect_recarr) {
+		// only multi-element indexed-only arrays
+		if ($type->length > 1 && array_key_exists(0, $type->children)) {
+			$n0 = reset($type->children);
+			$n1 = next($type->children);
+			// 0,1 same-type elements
+			if (is_object($n0) && is_object($n1) || is_array($n0) && is_array($n1)) {
+				$n0 = (array)$n0;
+				$n1 = (array)$n1;
+				// 0,1 identical keys
+				if (array_keys($n0) === array_keys($n1)) {
+					// non-int keys, simple values only
+					foreach ($n0 as $k => $v) {
+						//$int_key = !is_int($k) ? (ctype_digit($k)) : true;
+						if (/*$int_key || */is_object($v) || is_array($v) || is_resource($v)) {
+							$rs = false;
+							break;
+						}
+						$rs = true;
+					}
+				}
+			}
+		}
+	}
+
+	if ($rs)
+		$type->subtype = 'recordarr';
+
+	return $rs;
+}, 'is_recordarr');
+
 /* example of adding extra info to streams and more still to files
 dump_r::hook_resource(function($input, $type) {
 	if ($type->subtype == 'stream') {
@@ -521,6 +592,40 @@ ob_start();
 		cursor: pointer;
 	}
 
+	.dump_r table {
+		border-collapse: separate;
+		border-spacing: 0 2px;
+		margin: -2px 0;
+	}
+
+	.dump_r table tr {
+		background: #F1F1F1;
+	}
+
+	.dump_r table tr:nth-child(odd) {
+		background: #E9E9E9;
+	}
+
+	.dump_r table tr > * {
+		padding: 1px 5px;
+		white-space: nowrap;
+		border-right: 1px dotted #AAAAAA;
+	}
+
+	.dump_r table tr > *:last-child {
+		width: 100%;
+		border-right: none;
+	}
+
+	.dump_r table tr > * * {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.dump_r table tr > *:last-child .lbl > * {
+		margin-right: 5px !important;
+	}
+
 	.dump_r .expanded > .excol:after	{content: "\25BC";}
 	.dump_r .collapsed > .excol:after	{content: "\25B6";}
 	.dump_r .collapsed > ul				{display: none;}
@@ -532,7 +637,7 @@ ob_start();
 	.dump_r li > .lbl					{background-color: #F1F1F1;}
 	.dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
 
-	.dump_r .key						{font-weight: bold;}
+	.dump_r .key						{font-weight: bold; text-align: left;}
 	.dump_r .val						{margin: 0 5px 0 30px; min-width: 5px; vertical-align: top;}
 	.dump_r .typ,
 	.dump_r .sub,
