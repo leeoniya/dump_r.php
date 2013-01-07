@@ -254,7 +254,8 @@ class dump_r
 				$disp = htmlspecialchars($v->disp, ENT_NOQUOTES);
 				$buf .= "<td><span class=\"{$v->type}{$subtype}{$numeric}{$empty}\"><span class=\"lbl\"><span class=\"val\">{$disp}</span></span></span></td>";
 			}
-			$buf .= "<td><span class=\"{$row->type}\"><span class=\"lbl\"><span class=\"val\">{$row->disp}</span><span class=\"typ\">{$row->type}</span><span class=\"sub\">{$row->subtype}</span></span></span></td>";
+			$len = !is_null($row->length) ? "<span class=\"len\">{$row->length}</span>" : '';
+			$buf .= "<td><span class=\"{$row->type}\"><span class=\"lbl\"><span class=\"val\">{$row->disp}</span><span class=\"typ\">{$row->type}</span><span class=\"sub\">{$row->subtype}</span>{$len}</span></span></td>";
 			$buf .= '</tr>';
 		}
 		$buf .= '</table>';
