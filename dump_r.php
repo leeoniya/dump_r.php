@@ -154,7 +154,7 @@ class dump_r
 					$str = "'" . json_decode($mat2[1]) . "'"; $i = 0;
 					$all2 .= preg_replace_callback('/^.*/m', function($m) use (&$i, $v, $len) {
 						if ($i++ == 0) return $m[0];
-						return str_repeat(' ', $len) . $v[1] . $m[0];
+						return str_repeat(' ', $len + 1) . $v[1] . $m[0];
 					}, $str);
 					$all2 .= $mat2[2];
 				}
