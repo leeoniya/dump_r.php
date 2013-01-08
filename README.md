@@ -29,8 +29,8 @@ __2013-01-08__
 PSR-0 rewrite
 
 __2012-11-27__  
-now installable through [Composer](http://getcomposer.org/)
-_require: "leeoniya/dump-r": "dev-master"_
+now installable through [Composer](http://getcomposer.org/)  
+_require: "leeoniya/dump-r": "dev-master"_  
 https://packagist.org/packages/leeoniya/dump-r
 
 --
