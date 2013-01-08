@@ -1,6 +1,6 @@
 <?php
-	include 'dump_r.php';
-	include 'ex_obj.php';
+	require '../dump_r.php';
+	include 'obj.php';
 ?><!DOCTYPE html>
 <html>
 	<head>
@@ -17,16 +17,21 @@
 				background: lightyellow !important;
 			}
 		</style>
-		<?php dump_r($obj, 1, 2); ?>
+		<?php
+			dump_r\Type::$dic = array();
+			dump_r($obj, 2, 1);
+		?>
 
 		<h2>text-only</h2>
 		<pre><?php
-			$ascii = dump_r($obj, 1, 1000, true);
+			dump_r\Type::$dic = array();
+			$ascii = dump_r($obj, 100, 1, true);
 			echo htmlspecialchars($ascii, ENT_NOQUOTES);
 		?></pre>
 
 		<h2>limited recursion</h2>
 		<pre><?php
+			dump_r\Type::$dic = array();
 			$ascii = dump_r($obj, 1, 1, true);
 			echo htmlspecialchars($ascii, ENT_NOQUOTES);
 		?></pre>
