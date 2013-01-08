@@ -1,5 +1,5 @@
 ## dump_r()
-_a cleaner, leaner mix of print_r() and var_dump() for the browser_
+_a cleaner, leaner mix of print_r() and var_dump()_
 
 __print_r() lacks__
 
