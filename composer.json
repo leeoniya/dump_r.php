@@ -1,6 +1,6 @@
 {
     "name": "leeoniya/dump-r",
-    "description": "a cleaner, leaner mix of print_r() and var_dump() for the browser",
+    "description": "a cleaner, leaner mix of print_r() and var_dump()",
     "keywords": ["print_r", "var_dump", "debug", "pretty", "print", "dump"],
     "type": "library",
     "homepage": "https://github.com/leeoniya/dump_r.php",
