@@ -1,6 +1,6 @@
 <?php
-	require '../dump_r.php';
-	include 'obj.php';
+	require __DIR__ . '/../dump_r.php';
+	include __DIR__ . '/obj.php';
 ?><!DOCTYPE html>
 <html>
 	<head>
