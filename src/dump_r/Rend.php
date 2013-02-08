@@ -75,7 +75,8 @@ class Rend {
 
 	// public html renderer
 	public static function html0($file, $line, $key, Type $node, $expand = 1000) {
-		$buf = '';
+		$br = '<div style="clear:both;"></div>';
+		$buf = $br;
 
 		// inject css and js on first dump to page
 		if (self::$first) {
@@ -94,6 +95,7 @@ class Rend {
 		$buf .= $rend->html($node, $key, 2, $expand);
 
 		$buf .= '</pre>';
+		$buf .= $br;
 		$buf .= "<style>#{$dump_id} .key {min-width: " . (self::$key_width * self::CHAR_WIDTH) . 'px;}</style>';
 
 		self::$key_width = 0;

@@ -1,6 +1,6 @@
 .dump_r {
-	clear: both;
 	display: inline-block;
+	vertical-align: top;
 }
 
 .dump_r .file-line {
