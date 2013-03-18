@@ -9,7 +9,7 @@ if (!spl_autoload_functions()) {
 use dump_r\Core;
 
 if (!function_exists('dump_r')) {
-	function dump_r($raw, $depth = 1000, $expand = 1000, $ret = false) {
-		return Core::dump_r($raw, $depth, $expand, $ret);
+	function dump_r($raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
+		return Core::dump_r($raw, $ret, $html, $depth, $expand);
 	}
 }

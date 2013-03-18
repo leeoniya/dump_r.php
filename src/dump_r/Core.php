@@ -4,7 +4,7 @@ namespace dump_r;
 use dump_r\Type, dump_r\Rend;
 
 class Core {
-	public static function dump_r($raw, $depth = 1000, $expand = 1000, $ret = false) {
+	public static function dump_r($raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
 		$root = Type::fact($raw, $depth);
 
 		// get the input arg passed to the function
@@ -16,7 +16,7 @@ class Core {
 		preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
 		$key = $m[1];
 
-		if (PHP_SAPI == 'cli' || $ret)
+		if (PHP_SAPI == 'cli' || !$html)
 			$out = Rend::text0($src->file, $src->line, $key, $root);
 		else
 			$out = Rend::html0($src->file, $src->line, $key, $root, $expand);
