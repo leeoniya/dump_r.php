@@ -11,6 +11,7 @@ class Rend {
 	const CHAR_WIDTH = 8;
 	public static $val_space	= 4;
 	public static $xml_pretty	= false;
+	public static $sql_pretty	= false;
 	public static $json_pretty	= false;
 	public static $detect_tbls	= true;
 
@@ -72,9 +73,17 @@ class Rend {
 	}
 
 /*-------------------------------------------------------------*/
+	protected static function vfy_sql_pretty_deps() {
+		if (self::$sql_pretty && !class_exists('\SqlFormatter')) {
+			self::$sql_pretty = false;
+			trigger_error("Setting 'sql_pretty' was disabled due to missing lib: jdorn/sql-formatter", E_USER_WARNING);
+		}
+	}
 
 	// public html renderer
 	public static function html0($file, $line, $key, Type $node, $expand = 1000) {
+		self::vfy_sql_pretty_deps();
+
 		$br = '<div style="clear:both;"></div>';
 		$buf = $br;
 
@@ -230,6 +239,8 @@ class Rend {
 
 	// public text renderer
 	public static function text0($file, $line, $key, Type $node) {
+		self::vfy_sql_pretty_deps();
+
 		$buf = '';
 
 		$loc = "{$file} (line {$line})";

@@ -101,3 +101,5 @@ $obj->xml_str = '<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttrib
 /*
 $obj->xml_str2 = '<?xml version="1.0" encoding="ISO-8859-1"?><SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1564:hello xmlns:ns1564="http://tempuri.org"><name xsi:type="xsd:string" haha="moo">Scott</name></ns1564:hello></SOAP-ENV:Body></SOAP-ENV:Envelope>';
 */
+
+$obj->sql_str = "SELECT firstname,lastname,mooo.blah,hehe.* FROM mytable moo INNER JOIN othertable hehe ON moo.id = hehe.some_id WHERE hehe.name IS NOT NULL AND moo.xxx = 'berries' GROUP BY foo.cookies ORDER BY foo.sum,moo.age DESC LIMIT 30,400";

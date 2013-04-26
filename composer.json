@@ -16,6 +16,9 @@
     "require": {
         "php": ">=5.3.0"
     },
+    "suggest": {
+        "jdorn/sql-formatter": "Pretty-print dumped SQL strings"
+    },
     "autoload": {
         "files": ["dump_r.php"],
         "psr-0": {"dump_r": "src/"}

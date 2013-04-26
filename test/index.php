@@ -1,6 +1,11 @@
 <?php
 	require __DIR__ . '/../dump_r.php';
 	include __DIR__ . '/obj.php';
+
+//	dump_r\Rend::$sql_pretty = true;
+//	dump_r\Rend::$xml_pretty = true;
+//	dump_r\Rend::$json_pretty = true;
+
 ?><!DOCTYPE html>
 <html>
 	<head>

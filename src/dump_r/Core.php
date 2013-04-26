@@ -66,6 +66,27 @@ Type::hook('String', function($raw) {
 	if (strlen($raw) > 5 && preg_match('#[:/-]#', $raw) && ($ts = strtotime($raw)) !== false)
 		return array('Datetime', $ts);
 
+	// SQL
+	if (strpos($raw, 'SELECT')   === 0 ||
+		strpos($raw, 'INSERT')   === 0 ||
+		strpos($raw, 'UPDATE')   === 0 ||
+		strpos($raw, 'DELETE')   === 0 ||
+		strpos($raw, 'BEGIN')    === 0 ||
+		strpos($raw, 'COMMIT')   === 0 ||
+		strpos($raw, 'ROLLBACK') === 0
+		/* sql_extended
+		strpos($raw, 'CREATE')   === 0 ||
+		strpos($raw, 'DROP')     === 0 ||
+		strpos($raw, 'TRUNCATE') === 0 ||
+		strpos($raw, 'ALTER')    === 0 ||
+		strpos($raw, 'DESCRIBE') === 0 ||
+		strpos($raw, 'EXPLAIN')  === 0 ||
+		strpos($raw, 'SHOW')     === 0 ||
+		strpos($raw, 'GRANT')    === 0 ||
+		strpos($raw, 'REVOKE')   === 0
+		*/
+	) return 'SQL';
+
 	// JSON
 	if ($raw{0} == '{' && $json = json_decode($raw))
 		return array('JSON\\Object', $json);
