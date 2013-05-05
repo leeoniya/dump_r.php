@@ -103,3 +103,6 @@ $obj->xml_str2 = '<?xml version="1.0" encoding="ISO-8859-1"?><SOAP-ENV:Envelope 
 */
 
 $obj->sql_str = "SELECT firstname,lastname,mooo.blah,hehe.* FROM mytable moo INNER JOIN othertable hehe ON moo.id = hehe.some_id WHERE hehe.name IS NOT NULL AND moo.xxx = 'berries' GROUP BY foo.cookies ORDER BY foo.sum,moo.age DESC LIMIT 30,400";
+$obj->str_trail = 'trail space ';
+$obj->str_lead = ' lead space';
+$obj->str_bothspc = ' both space ';

@@ -1,19 +1,25 @@
 .dump_r {
 	display: inline-block;
+	border: 1px solid silver;
 	vertical-align: top;
 }
 
 .dump_r .file-line {
 	font-weight: bold;
-	background: #c6c6c6;
+	background: #E7E7E7;
 	padding: 0 3px;
-	margin: 2px 0;
+	margin: 0 0 2px 0;
+	border-bottom: 1px solid silver;
 }
 
 .dump_r ul {
 	list-style: none;
 	padding: 0 0 0 15px;
 	margin: 0;
+}
+
+.dump_r > ul {
+	margin-left: 5px;
 }
 
 .dump_r ul ul {
@@ -38,11 +44,11 @@
 }
 
 .dump_r table tr {
-	background: #F1F1F1;
+	background: #FDFDFD;
 }
 
 .dump_r table tr:nth-child(odd) {
-	background: #E9E9E9;
+	background: #FBFBFB;
 }
 
 .dump_r table tr > * {
@@ -77,8 +83,8 @@
 .dump_r .lbl > *					{display: inline-block;}
 
 
-.dump_r li > .lbl					{background-color: #F1F1F1;}
-.dump_r li:nth-child(odd) > .lbl	{background-color: #E9E9E9;}
+.dump_r li > .lbl					{background-color: #FDFDFD;}
+.dump_r li:nth-child(odd) > .lbl	{background-color: #FBFBFB;}
 
 .dump_r .key						{font-weight: bold; text-align: left;}
 .dump_r .val						{margin: 0 5px 0 30px; min-width: 5px; vertical-align: top;}
@@ -108,6 +114,14 @@
 .dump_r .numeric		> .lbl .val {}
 .dump_r .reference		> .lbl .val {background-color: #CEFBF3;}
 .dump_r .datetime		> .lbl .val {}
+
+.dump_r .string.leadspc > .lbl .val {
+	border-left: 1px solid gray;
+}
+
+.dump_r .string.trailspc > .lbl .val {
+	border-right: 1px solid gray;
+}
 
 .dump_r .stdClass .std,
 .dump_r .reference .ref {
