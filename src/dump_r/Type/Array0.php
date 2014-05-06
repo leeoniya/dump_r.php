@@ -5,8 +5,7 @@ use dump_r\Type, dump_r\Core;
 
 class Array0 extends Type {
 	static $ref_key = '__ref_uid';
-	// TODO: fix array recursion detection, since === actually compares array contents, not mem pointers
-	// copy-on-write also dooms temp tagging :(
+
 	function chk_ref() {
 		if (array_key_exists(self::$ref_key, $this->raw)) {
 			$this->id = $this->raw[self::$ref_key];
