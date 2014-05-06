@@ -76,12 +76,14 @@ $obj->food = null;
 $obj->dom = new DOMDocument;
 $obj->xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>');
 $obj->afile = fopen(__FILE__, 'r');
+$obj->afile_ref = $obj->afile;
 //$obj->afile_ref = &$obj->afile;
 //$obj->afile_ref = $obj->afile;
 
 
 $obj->call_self = $obj;
 $obj->call_closure = function($a) {};
+$obj->call_closure_ref = $obj->call_closure;
 // $obj->closure_refer = $obj->call_closure;
 $obj->call_inst_meth = array($obj, 'myFn');
 $obj->call_static_str = 'lib::myFn';

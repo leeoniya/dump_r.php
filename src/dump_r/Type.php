@@ -132,7 +132,18 @@ class Type {
 		return null;
 	}
 
+	// will by overridden for simple types
 	public function chk_ref() {
+		foreach (Type::$dic as $id => &$raw) {
+			if ($raw === $this->raw) {
+				$this->id = $id;
+				return true;
+			}
+		}
+
+		$this->id = Core::rand_str(16);
+		Type::$dic[$this->id] = $this->raw;
+
 		return false;
 	}
 

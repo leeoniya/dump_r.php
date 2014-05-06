@@ -23,20 +23,9 @@ class Function0 extends Type {
 	}
 
 	public function chk_ref() {
-/*
 		if ($this->raw instanceof \Closure)
-			$this->id = spl_object_hash($this->raw);
-		else if (is_string($this->raw) || (is_array($this->raw) && is_string($this->raw[0])))
-			$this->id = is_string($this->raw) ? $this->raw : implode('::', $this->raw);
-		else if (is_array($this->raw))
-			$this->id = spl_object_hash($this->raw[0]) . '::' . $this->raw[1];
+			return parent::chk_ref();
 
-
-		if (array_key_exists($this->id, Type::$dic))
-			return true;
-		else
-			Type::$dic[$this->id] = $this->id;
-*/
 		return false;
 	}
 }
