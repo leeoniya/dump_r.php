@@ -108,3 +108,10 @@ $obj->sql_str = "SELECT firstname,lastname,mooo.blah,hehe.* FROM mytable moo INN
 $obj->str_trail = 'trail space ';
 $obj->str_lead = ' lead space';
 $obj->str_bothspc = ' both space ';
+
+$obj->arr0 = ['a','b','c'];
+$obj->arr1 = &$obj->arr0;
+
+$obj->arr3 = ['a','b','c'];
+
+$obj->arr3[] = &$obj->arr3;

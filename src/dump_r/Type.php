@@ -34,7 +34,7 @@ class Type {
 	}
 
 	// iterative classifier
-	public static function pick($raw) {
+	public static function pick(&$raw) {
 		$type = ''; $intr = null;
 		while (array_key_exists($type, self::$hooks)) {
 			$last = $type;
@@ -57,17 +57,18 @@ class Type {
 	}
 
 	// factory method
-	public static function fact($raw, $depth = 1000) {
+	public static function fact(&$raw, $depth = 1000) {
 		$pickd = self::pick($raw);
 
-		$class = new \ReflectionClass(__NAMESPACE__ . '\\Type\\' . $pickd[0]);
-		return $class->newInstance($raw, $depth, $pickd[1]);
+		$class = __NAMESPACE__ . '\\Type\\' . $pickd[0];
+
+		return new $class($raw, $depth, $pickd[1]);
 	}
 /*-------------------------------------------------------------*/
 
 	// $intr: intermediate pre-proccesed $raw - a helpful side-effect of classifier
-	public function __construct($raw, $depth = 1000, $intr = null) {
-		$this->raw = $raw;
+	public function __construct(&$raw, $depth = 1000, $intr = null) {
+		$this->raw = &$raw;
 		$this->val = $intr;
 
 		$this->build($depth);
@@ -89,7 +90,7 @@ class Type {
 		$this->emp = empty($this->raw);
 		// numeric?
 		$this->num = is_numeric($this->raw);
-		// grab nodes regardless of depth, get_len() may depend on them
+		// grab raw nodes regardless of depth, get_len() may depend on them
 		$this->nodes = $this->get_nodes();
 		// get length
 		$this->len = $this->get_len();
@@ -105,7 +106,10 @@ class Type {
 		}
 		// build sub-nodes
 		if ($this->nodes) {
-			foreach ($this->nodes as $key => $raw)
+			$raw_nodes = $this->nodes;
+			$this->nodes = [];
+
+			foreach ($raw_nodes as $key => &$raw)
 				$this->nodes[$key] = self::fact($raw, $depth - 1, '');
 		}
 	}
@@ -142,7 +146,7 @@ class Type {
 		}
 
 		$this->id = Core::rand_str(16);
-		Type::$dic[$this->id] = $this->raw;
+		Type::$dic[$this->id] = &$this->raw;
 
 		return false;
 	}

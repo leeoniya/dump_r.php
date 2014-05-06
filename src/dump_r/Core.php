@@ -4,8 +4,16 @@ namespace dump_r;
 use dump_r\Type, dump_r\Rend;
 
 class Core {
-	public static function dump_r($raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
+	public static function dump_r(&$raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
 		$root = Type::fact($raw, $depth);
+
+		// remove array recursion detection keys from orig
+		foreach(Type::$dic as $key2 => &$raw_ref)
+			if (is_array($raw_ref))
+				unset($raw_ref[Type\Array0::$ref_key]);
+
+
+		self::cleanArrRefTags($root);
 
 		// get the input arg passed to the function
 		$src = debug_backtrace();
@@ -30,6 +38,15 @@ class Core {
 	public static function rand_str($chars = 8) {
 		$letters = 'abcefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
 		return substr(str_shuffle($letters), 0, $chars);
+	}
+
+	public static function cleanArrRefTags(&$node) {
+		if ($node instanceof Type\Array0)
+			unset($node->nodes[Type\Array0::$ref_key]);
+
+		if ($node->nodes)
+			foreach ($node->nodes as &$node)
+				self::cleanArrRefTags($node);
 	}
 }
 
