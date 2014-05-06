@@ -8,8 +8,10 @@ class Array0 extends Type {
 	// TODO: fix array recursion detection, since === actually compares array contents, not mem pointers
 	// copy-on-write also dooms temp tagging :(
 	function chk_ref() {
-		if (array_key_exists(self::$ref_key, $this->raw))
+		if (array_key_exists(self::$ref_key, $this->raw)) {
+			$this->id = $this->raw[self::$ref_key];
 			return true;
+		}
 
 		$this->id = Core::rand_str(16);
 		$this->raw[self::$ref_key] = $this->id;
