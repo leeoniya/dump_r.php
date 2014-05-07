@@ -144,6 +144,9 @@ class Rend {
 
 		$val = htmlspecialchars($rend->get_val($node), ENT_NOQUOTES);
 
+		// trailing newlines dont render in <pre>, so repeat them
+		$val = preg_replace('/(\r\n|\r|\n)$/', '$1$1', $val);
+
 		if ($node->ref)
 			$val = str_replace('*', "<a href=\"#{$node->id}\">*</a>", $val);
 		else if ($node->id)
