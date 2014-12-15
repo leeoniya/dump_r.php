@@ -15,6 +15,8 @@ class Core {
 
 		self::cleanArrRefTags($root);
 
+		Type::$dic = array();
+
 		// get the input arg passed to the function
 		$src = debug_backtrace();
 		$idx = strpos($src[0]['file'], 'dump_r.php') ? 1 : 0;
