@@ -55,26 +55,26 @@ class Core {
 // typenode classification
 Type::hook('*', function($raw) {
 	if (is_null($raw))
-		return 'Null';
+		return new CoreType('Null');
 	if (is_bool($raw))
-		return 'Boolean';
+		return new CoreType('Boolean');
 	if (is_int($raw))
-		return 'Integer';
+		return new CoreType('Integer');
 	if (is_float($raw))
-		return 'Float';
+		return new CoreType('Float');
 	if (is_resource($raw))
-		return 'Resource';
+		return new CoreType('Resource');
 	// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
 	if (is_callable($raw) && !(is_object($raw) && !($raw instanceof \Closure)) && !(is_string($raw) && function_exists($raw)))
-		return 'Function0';	// lang construct
+		return new CoreType('Function0');	// lang construct
 	if (is_string($raw))
-		return 'String';
+		return new CoreType('String');
 	if (is_array($raw))
-		return 'Array0';	// lang construct
+		return new CoreType('Array0');	// lang construct
 	if (is_object($raw))
-		return 'Object';
+		return new CoreType('Object');
 
-	return gettype($raw);
+	return new CoreType(gettype($raw));
 });
 
 // renderer classification
@@ -88,7 +88,7 @@ Type::hook('String', function($raw) {
 	if ($raw === '') return;
 
 	if (strlen($raw) > 5 && preg_match('#[:/-]#', $raw) && ($ts = strtotime($raw)) !== false)
-		return array('Datetime', $ts);
+		return new CoreType('Datetime', $ts);
 
 	// SQL
 	if (strpos($raw, 'SELECT')   === 0 ||
@@ -109,13 +109,13 @@ Type::hook('String', function($raw) {
 		strpos($raw, 'GRANT')    === 0 ||
 		strpos($raw, 'REVOKE')   === 0
 		*/
-	) return 'SQL';
+	) return new CoreType('SQL');
 
 	// JSON
 	if ($raw{0} == '{' && $json = json_decode($raw))
-		return array('JSON\\Object', $json);
+		return new CoreType('JSON\\Object', $json);
 	if ($raw{0} == '[' && $json = json_decode($raw))
-		return array('JSON\\Array0', $json);
+		return new CoreType('JSON\\Array0', $json);
 	// jsonH
 
 	// XML
@@ -124,7 +124,7 @@ Type::hook('String', function($raw) {
 		$raw = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $raw));
 
 		if ($xml = simplexml_load_string($raw))
-			return array('XML', $xml);
+			return new CoreType('XML', $xml);
 		// XML\Array0
 		// XML\Object
 	}
@@ -136,6 +136,6 @@ Type::hook('Resource', function($raw, $intr = null) {
 	switch ($type) {
 		case 'stream':
 			$meta = stream_get_meta_data($raw);
-			return array('Stream', $meta);
+			return new CoreType('Stream', $meta);
 	}
 });

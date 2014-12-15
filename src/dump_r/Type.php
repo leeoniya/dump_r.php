@@ -17,6 +17,7 @@ class Type {
 	public $rec; 			// recordset?
 	public $lim = false;	// recursion-limited
 	public $vis = array();	// child visibility (objects)
+	public $hook = null;	// result of classifier hook
 	public $nodes = array();// child nodes
 
 /*--------------------------Factory----------------------------*/
@@ -35,25 +36,23 @@ class Type {
 
 	// iterative classifier
 	public static function pick(&$raw) {
-		$type = ''; $intr = null;
+		$type = ''; $subt = null; $subts = [];
 		while (array_key_exists($type, self::$hooks)) {
 			$last = $type;
-
 			foreach (self::$hooks[$type] as $fn) {
-				if ($subt = $fn($raw, $intr)) {
-					if (is_array($subt)) {
-						$intr	= $subt[1];
-						$subt	= $subt[0];
-					}
-					$type .= ($type ? '\\' : '') . $subt;
-					break;
+				if ($subt = $fn($raw, $subt)) {
+					$subts[] = $subt;
+					if ($subt instanceof CoreType)
+						$type .= ($type ? '\\' : '') . $subt->class;
+			//		else if ($subt instanceof UserType)
+			//			break 2;												// TODO: this break prevents iterative classification to further than one level, need to retain last good subtype till end of loop and use that
 				}
 			}
 
 			if ($type == $last) break;
 		}
 
-		return array($type, $intr);
+		return array($type, end($subts));
 	}
 
 	// factory method
@@ -66,10 +65,12 @@ class Type {
 	}
 /*-------------------------------------------------------------*/
 
-	// $intr: intermediate pre-proccesed $raw - a helpful side-effect of classifier
-	public function __construct(&$raw, $depth = 1000, $intr = null) {
+	public function __construct(&$raw, $depth = 1000, $hook) {
 		$this->raw = &$raw;
-		$this->val = $intr;
+		$this->hook = $hook;
+
+		if ($this->hook instanceof CoreType)
+			$this->val = $hook->intr;
 
 		$this->build($depth);
 	}
@@ -81,6 +82,9 @@ class Type {
 		$this->typ = $this->get_typ();
 		// classless sub-types
 		$this->sub = $this->get_sub();
+		// extend sub
+		if ($this->hook instanceof UserType && $this->hook->sub !== null)
+			$this->sub = array_merge($this->sub, $this->hook->sub);
 		// is reference? early exit
 		if ($this->ref) {
 			$this->sub[] = 'reference';
@@ -92,8 +96,14 @@ class Type {
 		$this->num = is_numeric($this->raw);
 		// grab raw nodes regardless of depth, get_len() may depend on them
 		$this->nodes = $this->get_nodes();
+		// override nodes
+		if ($this->hook instanceof UserType && $this->hook->nodes !== null)
+			$this->nodes = $this->hook->nodes;
 		// get length
 		$this->len = $this->get_len();
+		// override len
+		if ($this->hook instanceof UserType && $this->hook->len !== null)
+			$this->len = $this->hook->len;
 		// is recordset?
 		if ($this->rec = $this->chk_rec())
 			$this->sub[] = 'recordset';
