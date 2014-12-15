@@ -23,20 +23,17 @@
 			}
 		</style>
 		<?php
-			dump_r\Type::$dic = array();
 			dump_r($obj, false, true, 2, 1);
 		?>
 
 		<h2>text-only</h2>
 		<pre><?php
-			dump_r\Type::$dic = array();
 			$ascii = dump_r($obj, true, false, 1e3, 1);
 			echo htmlspecialchars($ascii, ENT_NOQUOTES);
 		?></pre>
 
 		<h2>limited recursion</h2>
 		<pre><?php
-			dump_r\Type::$dic = array();
 			$ascii = dump_r($obj, true, false, 1, 1);
 			echo htmlspecialchars($ascii, ENT_NOQUOTES);
 		?></pre>
