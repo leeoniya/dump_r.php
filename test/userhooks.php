@@ -14,7 +14,7 @@ $stuff = [
 Type::hook('String', function($raw, $type) {
 	// match path-esque strings (containing '/' or '\') trailed by an
 	// EXIF-capable image extension, then verify this file actually exists
-	if (preg_match('#[\/]+.+\.(jpe?g|.tiff?)$#', $raw) && is_file($raw)) {
+	if (preg_match('#[\/]+.+\.(jpe?g|tiff?)$#', $raw) && is_file($raw)) {
 		$nodes = $exif = exif_read_data($raw, 0, true);
 		$len = $exif['COMPUTED']['Width'] . 'x' . $exif['COMPUTED']['Height'];
 
