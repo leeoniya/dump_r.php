@@ -40,7 +40,8 @@ class Type {
 		while (array_key_exists($type, self::$hooks)) {
 			$last = $type;
 			foreach (self::$hooks[$type] as $fn) {
-				if ($subt = $fn($raw, $subt)) {
+				$subt = $fn($raw, $subt);
+				if ($subt) {
 					$subts[] = $subt;
 					if ($subt instanceof CoreType)
 						$type .= ($type ? '\\' : '') . $subt->class;
