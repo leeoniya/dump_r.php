@@ -13,7 +13,7 @@ class Rend {
 	public static $xml_pretty	= false;
 	public static $sql_pretty	= false;
 	public static $json_pretty	= false;
-	public static $detect_tbls	= true;
+	public static $recset_tbls	= true;
 
 /*--------------------------Factory----------------------------*/
 
@@ -128,7 +128,7 @@ class Rend {
 		$buf .= '</div>';
 
 		if ($node->nodes) {
-			if ($node->rec)
+			if ($node->rec && self::$recset_tbls)
 				$buf .= $this->html_nodes_recordset($node, $expand-1);
 			else
 				$buf .= $this->html_nodes($node, $expand-1);

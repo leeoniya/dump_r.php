@@ -4,7 +4,7 @@ a cleaner, leaner mix of `print_r()` and `var_dump()` _(MIT Licensed)_
 
 ### Demo: http://o-0.me/dump_r/
 
-![screenshot](https://github.com/leeoniya/dump_r.php/raw/master/test/dump_r_th.png)
+![screenshot](https://github.com/leeoniya/dump_r.php/raw/master/test/dump_r.png)
 
 ### Installing
 
@@ -26,7 +26,7 @@ __Require__
 require 'dump_r.php';
 ```
 
-### Using
+### Using & Config
 
 Use `dump_r()` as a drop-in replacement for `print_r()` and `var_dump()`. It has some additional arguments that control output. The full signature of the function is:
 
@@ -46,7 +46,17 @@ There are also two modifier keys that can be used to control how the node expand
 2. Hold `Ctrl` while toggling will expand/collapse all siblings after that node also. This is useful if you have an array of objects/arrays and want to expand all of them to one level simultaneously by clicking just the first one in the group. It works well for deep, complex objects.
 3. `Shift` and `Ctrl` can be used together.
 
-Circular reference (recursion) detection and duplicate output is indicated like this for arrays, objects and closures, respectively: `[*]`,`{*}`,`(*)`.
+Some types of strings can be pretty-printed and additonal rendering options can be tweaked (shown with defaults):
+
+```php
+dump_r\Rend::$xml_pretty	= false;	// pretty-print xml strings
+dump_r\Rend::$json_pretty	= false;	// pretty-print json strings
+dump_r\Rend::$sql_pretty	= false;	// pretty-print sql strings (requires https://github.com/jdorn/sql-formatter)
+dump_r\Rend::$recset_tbls	= true;		// recordset detection & table-style output
+dump_r\Rend::$val_space		= 4;		// number of spaces between key and value columns (affects text output only, not html)
+```
+
+Circular reference (recursion) detection and duplicate output is indicated like this for arrays, objects, closures and resources respectively: `[*]`,`{*}`,`(*)`,`<*>`.
 
 You can re-style all aspects of the html output using CSS, everything is class-tagged.
 
