@@ -1,5 +1,5 @@
 dump_r()
---------
+========
 a cleaner, leaner mix of `print_r()` and `var_dump()` _(MIT Licensed)_
 
 ### Demo: http://o-0.me/dump_r/
