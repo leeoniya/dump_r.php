@@ -2,9 +2,9 @@ dump_r()
 ========
 a cleaner, leaner mix of `print_r()` and `var_dump()` _(MIT Licensed)_
 
-### Demo: http://o-0.me/dump_r/
-
 ![screenshot](https://github.com/leeoniya/dump_r.php/raw/master/test/dump_r.png)
+
+### Demo: http://o-0.me/dump_r/
 
 ### Installing
 
