@@ -38,7 +38,7 @@ function dump_r($value, $return = false, $html = true, $depth = 1e3, $expand = 1
 - `$return` determines whether to return the dump rather than output to screen
 - `$html` controls whether the output is text or html
 - `$depth` sets the recursion limit for the dump
-- `expand` sets the auto-expanded child node depth
+- `$expand` sets the auto-expanded child node depth
 
 There are also two modifier keys that can be used to control how the node expanding/collapsing works:
 
