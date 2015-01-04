@@ -1,9 +1,9 @@
 <?php
 
-namespace dump_r\Type;
-use dump_r\Type;
+namespace dump_r\Node;
+use dump_r\Node;
 
-class Object extends Type {
+class Object extends Node {
 	const VIS_PUBL = 2;
 	const VIS_PROT = 1;
 	const VIS_PRIV = 0;
@@ -31,7 +31,7 @@ class Object extends Type {
 	// removes protected and private indics from array-casted objects
 	// returns array of clean_key => vislevel
 	public function get_vis($nodes) {
-		$keys = array();
+		$keys = [];
 
 		foreach ($nodes as $k => $v) {
 			$vis = self::VIS_PUBL;
@@ -46,5 +46,9 @@ class Object extends Type {
 		}
 
 		return $keys;
+	}
+
+	public function disp_val() {
+		return $this->ref ? '{*}' : '{ }';
 	}
 }

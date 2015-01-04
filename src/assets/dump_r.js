@@ -2,11 +2,11 @@
 	/*--- all this for expand/collapse arrow size consistency ---*/
 	function isUa(re) {return re.test(window.navigator.userAgent);}
 
-	var ua = isUa(/Chrom[ei]/) ? "ch" : isUa(/Firefox\//) ? "ff" : isUa(/Safari/) ? "sf" : isUa(/Opera/) ? "op" : isUa(/; MSIE \d/) ? "ie" : "oth";
+	var ua = isUa(/Chrom[ei]/) ? "ch" : isUa(/Firefox\//) ? "ff" : isUa(/Safari/) ? "sf" : isUa(/Opera/) ? "op" : isUa(/; MSIE \d|Trident/) ? "ie" : "oth";
 
 	var cfg = {
 		ff: [10,8,null,null],
-		ch: [10,10,null,null],
+		ch: [10,10,null,12],
 		sf: [10,8.5,null,null],
 		op: [11,8.5,11,11],
 		ie: [10,13.5,null,11]

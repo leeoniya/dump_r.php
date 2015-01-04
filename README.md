@@ -81,43 +81,47 @@ Can be dumped like this with subtyping:
 
 ![usertyped](https://github.com/leeoniya/dump_r.php/raw/master/test/usertyped.png)
 
-To do this, hook the correct core type and provide a function that classifies and processes the raw value, returning an instance of `UserType` instantiated with these 3 arguments:
+To do this, hook the correct core type and provide a function that classifies and processes the raw value, then modifies and returns an instance of `Type`. Here are the properties that can be modified/augmented:
 
-1. `$types` - Array of subtype string(s) of your choice. These get appended as CSS classes and are also displayed inline.
-2. `$nodes` - Array of expandable subnodes to display. Provide `null` if no subnodes are needed or to retain any subnodes extracted by the core type.
-3. `$length` - A string to be displayed at the end of the line, indicating length of subnodes. You can also abuse this param to display other length-esque information (the EXIF example below uses it to display image dimensions inline). Provide `null` to retain the default length display for the hooked core type.
+1. `$type->types` - Array of subtype string(s) of your choice. These get appended as CSS classes and are also displayed inline.
+2. `$type->nodes` - Array of expandable subnodes to display. Provide `null` if no subnodes are needed or to retain any subnodes extracted by the core type.
+3. `$type->length` - A string to be displayed at the end of the line, indicating length of subnodes. You can also abuse this param to display other length-esque information (the EXIF example below uses it to display image dimensions inline). Provide `null` to retain the default length display for the hooked core type.
 
 ```php
 use dump_r\Type;
-use dump_r\UserType;
 
 // Example 1: dump EXIF data with image filepath strings
 
-Type::hook('String', function($raw, $type) {
+Type::hook('String', function($raw, Type $type, $path) {
 	// match path-esque strings (containing '/' or '\') trailed by an
 	// EXIF-capable image extension, then verify this file actually exists
 	if (preg_match('#[\/]+.+\.(jpe?g|tiff?)$#', $raw) && is_file($raw)) {
-		$types = ['image'];
 		$nodes = $exif = exif_read_data($raw, 0, true);
-		$length = $exif['COMPUTED']['Width'] . 'x' . $exif['COMPUTED']['Height'];
+		$len = $exif['COMPUTED']['Width'] . 'x' . $exif['COMPUTED']['Height'];
 
-		return new UserType($types, $nodes, $length);
+		$type->types	= ['image'];
+		$type->nodes	= ['EXIF' => $nodes['EXIF']];
+		$type->length	= $len;
+
+		return $type;
 	}
 });
 
 // Example 2: dump CSV records with csv filepath strings
 
-Type::hook('String', function($raw, $type) {
+Type::hook('String', function($raw, Type $type, $path) {
 	if (preg_match('#[\/]+.+\.csv$#', $raw) && is_file($raw)) {
-		$types = ['csv'];
-		$nodes = csv2array($raw);
-		$length = count($nodes);
-		return new UserType($types, $nodes, $length);
+
+		$type->types	= ['csv'];
+		$type->nodes	= csv2array($raw);
+		$type->length	= count($type->nodes);
+
+		return $type;
 	}
 });
 
 function csv2array($file) {
-	$csv = array();
+	$csv = [];
 	$rows = array_map('str_getcsv', file($file));
 	$header = array_shift($rows);
 	foreach ($rows as $row)
@@ -126,10 +130,49 @@ function csv2array($file) {
 }
 ```
 
-All core types (see `src/dump_r/Type` dir) can be hooked by their fully namespaced names. For example, if you wanted to further subtype a JSON object string, you would use
+All core types (see `src/dump_r/Node` dir) can be hooked by their fully namespaced names. For example, if you wanted to further subtype a JSON object string, you would use
 
 ```php
-Type::hook('String\\JSON\\Object', function($raw, $type) {
+Type::hook('String\\JSON\\Object', function($raw, Type $type, $path) {
 	// code here
+});
+```
+
+### Filtering, Marking & Recursion Control
+
+Using the same `Type` hooks (introduced above) allows you to modify additional aspects of the renderer and iterator.
+
+**Hide specific nodes based on their properties or path in the hierarchy**
+
+```php
+// prevent anything keyd under 'xxx' from dumping
+Type::hook('*', function($raw, Type $type, $path) {
+	if (end($path) === 'xxx')
+		return false;
+});
+```
+
+**Stop recursion of specific nodes**
+
+```php
+// prevent arrays keyed under 'c' from dumping sub-nodes
+Type::hook('Array0', function($raw, Type $type, $path) {
+	if (end($path) === 'c')
+		$type->depth = 1;
+
+	return $type;
+});
+```
+
+**CSS-tag nodes via classes**
+
+```php
+// tag nodes keyed under `yyy` with addl CSS classes
+Type::hook('*', function($raw, Type $type, $path) {
+	if (end($path) === 'yyy') {
+		$type->classes[] = 'marked';
+	}
+
+	return $type;
 });
 ```

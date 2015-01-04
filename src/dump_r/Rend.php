@@ -2,77 +2,22 @@
 
 namespace dump_r;
 
-class Rend {
+trait Rend {
 	protected static $first		= true;
 	protected static $key_width	= 0;
-	protected static $renderers	= array();
 
 	// cfg opts
-	const CHAR_WIDTH = 8;
+	public static $char_width	= 8;
 	public static $val_space	= 4;
 	public static $xml_pretty	= false;
 	public static $sql_pretty	= false;
 	public static $json_pretty	= false;
 	public static $recset_tbls	= true;
 
-/*--------------------------Factory----------------------------*/
-
-	public static $hooks = array();
-
-	public static function hook($key, $fn) {
-		if ($key === '*')
-			$key = '';
-
-		if (!array_key_exists($key, self::$hooks))
-			self::$hooks[$key] = array();
-
-		self::$hooks[$key][] = $fn;
+	public function disp_val() {
+		return (string)$this->raw;
 	}
 
-	// iterative classifier
-	public static function pick($node) {
-		$type = '';
-		while (array_key_exists($type, self::$hooks)) {
-			$last = $type;
-
-			foreach (self::$hooks[$type] as $fn) {
-				$subt = is_callable($fn) ? call_user_func($fn, $node) : $fn;
-
-				if (!$subt) continue;
-
-				$type .= ($type ? '\\' : '') . $subt;
-				break;
-			}
-
-			if ($type == $last) break;
-		}
-
-		return $type;
-	}
-
-	public static function fact($node) {
-		$class = self::pick($node);
-
-		if (!array_key_exists($class, self::$renderers)) {
-			$refl = new \ReflectionClass(__NAMESPACE__ . '\\Rend\\' . $class);
-			$inst =  $refl->newInstance();
-			self::$renderers[$class] = $inst;
-		}
-
-		return self::$renderers[$class];
-	}
-
-/*-------------------------------------------------------------*/
-
-	public function get_val($node) {
-		return (string)$node->raw;
-	}
-
-	public function get_len($node) {
-		return $node->len ? $node->len : '';
-	}
-
-/*-------------------------------------------------------------*/
 	protected static function vfy_sql_pretty_deps() {
 		if (self::$sql_pretty && !class_exists('\SqlFormatter')) {
 			self::$sql_pretty = false;
@@ -81,7 +26,7 @@ class Rend {
 	}
 
 	// public html renderer
-	public static function html0($file, $line, $key, Type $node, $expand = 1000) {
+	public function html0($file, $line, $key, $expand = 1e3) {
 		self::vfy_sql_pretty_deps();
 
 		$br = '<div style="clear:both;"></div>';
@@ -99,39 +44,37 @@ class Rend {
 		$buf .= '<pre class="dump_r" id="' . $dump_id . '">';
 		$buf .= "<div class=\"file-line\">{$file} (line {$line})</div>";
 
-		// select renderer
-		$rend = self::fact($node);
-		$buf .= $rend->html($node, $key, 2, $expand);
+		$buf .= $this->html($key, 2, $expand, true);
 
 		$buf .= '</pre>';
 		$buf .= $br;
-		$buf .= "<style>#{$dump_id} .key {min-width: " . (self::$key_width * self::CHAR_WIDTH) . 'px;}</style>';
+		$buf .= "<style>#{$dump_id} .key {min-width: " . (self::$key_width * self::$char_width) . 'px;}</style>';
 
 		self::$key_width = 0;
 
 		return $buf;
 	}
 
-	public function html($node, $key = 'root', $vis = 2, $expand = 1000, $init = true) {
+	public function html($key, $vis = 2, $expand = 1e3, $init = false) {
 		self::$key_width = max(self::$key_width, strlen($key));
 
-		$class = $this->html_css_class($node, $vis, $expand);
+		$class = $this->html_css_class($vis, $expand);
 
 		$buf = '';
 		$buf .= '<li class="' . implode(' ', $class) . '">';
-		$buf .= $node->nodes || $node->lim ? '<div class="excol"></div>' : '';
+		$buf .= $this->nodes || $this->lim ? '<div class="excol"></div>' : '';
 		$buf .= '<div class="lbl">';
 		$buf .= '<div class="key">' . $key . '</div>';
 
-		$buf .= $this->html_value($this, $node);
+		$buf .= $this->html_value();
 
 		$buf .= '</div>';
 
-		if ($node->nodes) {
-			if ($node->rec && self::$recset_tbls)
-				$buf .= $this->html_nodes_recordset($node, $expand-1);
+		if ($this->nodes) {
+			if ($this->rec && self::$recset_tbls)
+				$buf .= $this->html_nodes_recordset($expand - 1);
 			else
-				$buf .= $this->html_nodes($node, $expand-1);
+				$buf .= $this->html_nodes($expand - 1);
 		}
 
 		$buf .= '</li>';
@@ -139,25 +82,25 @@ class Rend {
 		return $init ? "<ul>{$buf}</ul>" : $buf;
 	}
 
-	public function html_value(Rend $rend, Type $node) {
+	public function html_value() {
 		$buf = '';
 
-		$val = htmlspecialchars($rend->get_val($node), ENT_NOQUOTES);
+		$val = htmlspecialchars($this->disp_val(), ENT_NOQUOTES);
 
 		// trailing newlines dont render in <pre>, so repeat them
 		$val = preg_replace('/(\r\n|\r|\n)$/', '$1$1', $val);
 
-		if ($node->ref)
-			$val = str_replace('*', "<a href=\"#{$node->id}\">*</a>", $val);
-		else if ($node->id)
-			$val = "<a name=\"{$node->id}\">{$val}</a>";
+		if ($this->ref)
+			$val = str_replace('*', "<a href=\"#{$this->id}\">*</a>", $val);
+		else if ($this->id)
+			$val = "<a name=\"{$this->id}\">{$val}</a>";
 
 		$buf .= '<div class="val">' . $val . '</div>';
 
-		if ($len = $rend->get_len($node))
-			$buf .= '<div class="len">' . htmlspecialchars($len, ENT_NOQUOTES) . '</div>';
+		if ($this->len)
+			$buf .= '<div class="len">' . htmlspecialchars($this->len, ENT_NOQUOTES) . '</div>';
 
-		$typs = array_merge($node->typ, $node->sub);
+		$typs = array_merge($this->typ, $this->sub);
 		$buf2 = '';
 		foreach ($typs as $t) {
 			switch ($t) {
@@ -173,40 +116,42 @@ class Rend {
 	}
 
 	// child renderer
-	public function html_nodes($node, $expand) {
+	public function html_nodes($expand = 1e3) {
 		$buf = '';
-		foreach ($node->nodes as $key => $node2) {
-			$vis = array_key_exists($key, $node->vis) ? $node->vis[$key] : 2;
-			$rend = self::fact($node2);
-			$buf .= $rend->html($node2, $key, $vis, $expand, false);
+		foreach ($this->nodes as $key => $node) {
+			$vis = array_key_exists($key, $this->vis) ? $this->vis[$key] : 2;
+			$buf .= $node->html($key, $vis, $expand);
 		}
 		return "<ul>{$buf}</ul>";
 	}
 
 	// child renderer for recordsets
 	// TODO: split recordset nodes renderer
-	public function html_nodes_recordset($node, $expand) {
+	public function html_nodes_recordset($expand) {
 		$buf  = '<ul>';
 		$buf .= '<li>';
 		$buf .= '<table>';
 		$buf .= '<tr>';
-		$buf .= '<th style="text-align: left;">#</th>';
-		foreach ($node->nodes[0]->nodes as $k => $v)
-			$buf .= "<th>{$k}</th>";
+		$buf .= '<th class="key">#</th>';
+		foreach ($this->nodes[0]->nodes as $k => $v) {
+			$vis = array_key_exists($k, $this->nodes[0]->vis) ? $this->nodes[0]->vis[$k] : 2;
+			$class = '';
+			if ($vis = $this->html_vis_class($vis))
+				$class = " class=\"{$vis}\"";
+			$buf .= "<th{$class}>{$k}</th>";
+		}
 		$buf .= '<th></th>';
 		$buf .= '</tr>';
-		foreach ($node->nodes as $i => $row) {
-			$rend = self::fact($row);
-			$class = $rend->html_css_class($row, 2, 1);
+		foreach ($this->nodes as $i => $row) {
+			$class = $this->html_css_class(2, 1);
 			$buf .= '<tr class="' . implode(' ', $class) . '">';
 			$buf .= "<th class=\"key\">{$i}</th>";
-			foreach ($row->nodes as $k => $node2) {
-				$rend2 = self::fact($node2);
-				$class2 = $rend2->html_css_class($node2, 2, 1);
-				$val = htmlspecialchars($rend2->get_val($node2), ENT_NOQUOTES);
+			foreach ($row->nodes as $k => $node) {
+				$class2 = $node->html_css_class(2, 1);
+				$val = htmlspecialchars($node->disp_val(), ENT_NOQUOTES);
 				$buf .= "<td class=\"" . implode(' ', $class2) . "\"><div class=\"lbl\"><div class=\"val\">{$val}</div></div></td>";
 			}
-			$buf .= "<td class=\"lbl\">" . $rend->html_value($rend, $row) . "</td>";
+			$buf .= "<td class=\"lbl\">" . $row->html_value() . "</td>";
 			$buf .= '</tr>';
 		}
 		$buf .= '</table>';
@@ -215,33 +160,40 @@ class Rend {
 		return $buf;
 	}
 
-	public function html_css_class($node, $vis, $expand) {
-		$class = array_merge($node->typ, $node->sub);
+	public function html_css_class($vis, $expand) {
+		$class = array_merge($this->typ, $this->sub, $this->hook->classes);
 
-		if ($node->emp)
+		if ($this->emp)
 			$class[] = 'empty';
-		if ($node->num)
+		if ($this->num)
 			$class[] = 'numeric';
 
-		if ($vis == 0)
-			$class[] = 'private';
-		else if ($vis == 1)
-			$class[] = 'protected';
+		if ($vis = $this->html_vis_class($vis))
+			$class[] = $vis;
 
-		if ($node->lim) {
+		if ($this->lim) {
 			$class[] = 'limited';
 			$class[] = 'collapsed';
 		}
-		else if ($node->nodes)
+		else if ($this->nodes)
 			$class[] = $expand > 0 ? 'expanded' : 'collapsed';
 
 		return $class;
 	}
 
+	public function html_vis_class($vis) {
+		switch ($vis) {
+			case 0: return 'private';
+			case 1: return 'protected';
+			case 2: return null;			// public
+		}
+	}
+
 /*-------------------------------------------------------------*/
 
 	// public text renderer
-	public static function text0($file, $line, $key, Type $node) {
+	// pass depth?
+	public function text0($file, $line, $key) {
 		self::vfy_sql_pretty_deps();
 
 		$buf = '';
@@ -251,46 +203,44 @@ class Rend {
 
 		$buf .= $loc;
 
-		$rend = self::fact($node);
-		$buf .= $rend->text($node, $key, 2);
+		$buf .= $this->text($key);
 
 		self::$key_width = 0;
 
 		return $buf;
 	}
 
-	public function text($node, $key = 'root', $vis = 2, $depth = 0, $init = true) {
+	public function text($key, $depth = 0, $init = true) {
 		self::$key_width = max(self::$key_width, strlen($key));
 
-		$val = $this->get_val($node);
+		$val = $this->disp_val();
 
-		if ($node->typ[0] == 'string') {
+		if ($this->typ[0] == 'string') {
 			// json-encode multi-line strings. quote others.
 			$val = preg_match('/[\r\n]/m', $val) ? 'strJSON|' . json_encode($val) : "'{$val}'";		// string nodes only (multi-line)
 		}
 
-		$ext = $this->text_val_suf($node);
+		$ext = $this->text_val_suf();
 
 		$val .= $ext ? ' ' . implode(' ', $ext): '';
 
 		// process sub-nodes
-		$cbuf = $node->nodes ? $this->text_nodes($node, $depth) : '';
+		$cbuf = $this->nodes ? $this->text_nodes($depth) : '';
 
 		if ($init) {
 			$all = $this->text_ind_line($key . '=' . $val, $depth) . $cbuf;
 			return $this->text_ind_vals($all);
 		}
 
-		return array($key, $val, $cbuf);
+		return [$key, $val, $cbuf];
 	}
 
-	public function text_nodes($node, $depth) {
+	public function text_nodes($depth) {
 		$buf = '';
-		foreach ($node->nodes as $k => $node2) {
-			$vis = array_key_exists($k, $node->vis) ? $node->vis[$k] : 2;
+		foreach ($this->nodes as $key => $node) {
+		//	$vis = array_key_exists($key, $this->vis) ? $this->vis[$key] : 2;
 
-			$rend = self::fact($node2);
-			$v = $rend->text($node2, $k, $vis, $depth + 1, false);
+			$v = $node->text($key, $depth + 1, false);
 
 			$buf .= $this->text_ind_line($v[0] . '=' . $v[1], $depth + 1) . $v[2];
 		}
@@ -330,15 +280,15 @@ class Rend {
 		return $buf;
 	}
 
-	public function text_val_suf($node) {
-		$ext = array();
+	public function text_val_suf() {
+		$ext = [];
 
-		if ($node->len)
-			$ext[] = $this->get_len($node);
-		if (count($node->typ) > 1)
-			$ext[] = implode(' ', array_slice($node->typ, 1));
-		if (!$node->ref && $node->sub && $node->sub[0] != 'stdClass')
-			$ext[] = implode(' ', $node->sub);
+		if ($this->len)
+			$ext[] = $this->len;
+		if (count($this->typ) > 1)
+			$ext[] = implode(' ', array_slice($this->typ, 1));
+		if (!$this->ref && $this->sub && $this->sub[0] != 'stdClass')
+			$ext[] = implode(' ', $this->sub);
 
 		return $ext;
 	}

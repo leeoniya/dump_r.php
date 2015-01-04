@@ -31,12 +31,6 @@
 	margin-bottom: 2px;
 }
 
-.dump_r .excol {
-	position: absolute;
-	margin: 1px 0 0 -15px;
-	cursor: pointer;
-}
-
 .dump_r table {
 	border-collapse:separate;
 	border-spacing: 0 2px;
@@ -54,7 +48,6 @@
 .dump_r table tr > * {
 	padding: 1px 5px;
 	white-space: nowrap;
-	border-right: 1px dotted #AAAAAA;
 }
 
 .dump_r table tr > *:last-child {
@@ -73,7 +66,14 @@
 	margin-right: 5px !important;
 }
 
-.dump_r .excol						{-webkit-user-select: none; -moz-user-select: none; -o-user-select: none;}
+.dump_r .excol {
+	position: absolute;
+	margin: 0 0 0 -15px;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+}
 .dump_r .expanded	> .excol:after	{content: "\25BC";}
 .dump_r .collapsed	> .excol:after	{content: "\25B6";}
 .dump_r .limited	> .excol:after	{color: #BCBCBC;}
@@ -97,8 +97,11 @@
 .dump_r .typ i						{font-style: normal; margin-right: 5px;}
 .dump_r .typ i:first-child			{display: none;}
 
-.dump_r .protected .key				{color: #5800B8;}
-.dump_r .private .key				{color: #A32B2B;}
+.dump_r .protected .key,
+.dump_r th.protected				{color: #5800B8;}
+
+.dump_r .private .key,
+.dump_r th.private					{color: #A32B2B;}
 
 .dump_r .empty			> .lbl .val {}
 .dump_r .array			> .lbl .val {background-color: #C0BCFF;}
@@ -110,6 +113,7 @@
 .dump_r .integer		> .lbl .val {background-color: #EAB2EA;}
 .dump_r .float			> .lbl .val {background-color: #EB65EB;}
 .dump_r .string			> .lbl .val {background-color: #FFBFBF;}
+.dump_r .string.binary	> .lbl .val {background-color: #91FFD4;}
 .dump_r .resource		> .lbl .val {background-color: #E2FF8C;}
 .dump_r .numeric		> .lbl .val {}
 .dump_r .reference		> .lbl .val {background-color: #CEFBF3;}
@@ -137,6 +141,19 @@
 .dump_r .empty.string:not(.numeric) > .lbl .val:after {
 	content: "\0387";
 	color: #BBBBBB;
+}
+
+.dump_r tr > *:nth-child(2) {
+	padding-left: 30px;
+}
+
+.dump_r table .key {
+	padding-right: 0;
+	padding-left: 3px;
+}
+
+.dump_r th {
+	text-align: left;
 }
 
 /* hide empty strings completely

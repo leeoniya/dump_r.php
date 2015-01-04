@@ -9,7 +9,10 @@ class lib extends lib0 {
 }
 
 class Account {
-	function __construct($props) {
+	protected $name;
+	private $deposit;
+
+	public function __construct($props) {
 		foreach($props as $k => $v) {
 			$this->$k = $v;
 		}
@@ -47,32 +50,33 @@ $obj->address->street = '111 Any Sreet';
 $obj->address->zip = 60657;
 $obj->address->city = 'Chicago';
 $obj->ref_to_addr = $obj->address;
-$obj->kids = array(
+$obj->kids = [
 	'multiln_str'	=> "Lorem Ipsum is simply \ndummy text of the printing\nand typesetting industry",
 	0				=> 'blah',
 	'a'				=> null,
 	'xxx'			=> new myObject,
-);
+];
 $obj->date_str = '2011-12-13 15:25:03';
 $obj->not_date = '123456';
-$obj->otherSet = array();
-$obj->moaarSet = array(
-	new Account(array('name'=>'john','active'=>true,'deposit'=>531.34)),
-	new Account(array('name'=>'mary','active'=>false,'deposit'=>95.15)),
-	new Account(array('name'=>'michael','active'=>false,'deposit'=>12.21)),
-	new Account(array('name'=>'charles','active'=>true,'deposit'=>1.01)),
-);
-$obj->anothSet = array(
-	array('abc'=>'yay!','def'=>false,'ghi'=>152.15),
-	array('abc'=>'yay!','def'=>true,'ghi'=>152.15),
-	array('abc'=>'yay!','def'=>0.01,'ghi'=>152.15),
-	array('abc'=>'yay!','def'=>true,'ghi'=>152.15),
-);
+$obj->otherSet = [];
+$obj->moaarSet = [
+	new Account(['name'=>'john','active'=>true,'deposit'=>531.34]),
+	new Account(['name'=>'mary','active'=>false,'deposit'=>95.15]),
+	new Account(['name'=>'michael','active'=>false,'deposit'=>12.21]),
+	new Account(['name'=>'charles','active'=>true,'deposit'=>1.01]),
+];
+$obj->anothSet = [
+	['abc'=>'yay!','def'=>false,'ghi'=>152.15],
+	['abc'=>'yay!','def'=>true,'ghi'=>152.15],
+	['abc'=>'yay!','def'=>0.01,'ghi'=>152.15],
+	['abc'=>'yay!','def'=>true,'ghi'=>152.15],
+];
 //$obj->moaarRef = &$obj->moaarSet;
 //$obj->moaarRef = $obj->moaarSet;
 
 $obj->isFull = false;
 $obj->food = null;
+$obj->binary_str = "\x49\x4d\x47\x3a\x50\x6f\x77\x65\x72\x53\x68\x6f\x74\x20\x53\x34\x30\x20\x4a\x50\x45\x47\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x46\x69\x72\x6d\x77\x61\x72\x65\x20\x56\x65\x72\x73\x69\x6f\x6e\x20\x31\x2e\x31\x30\x00\x00\x00\x41\x6e\x64\x72\x65\x61\x73\x20\x48\x75\x67\x67\x65\x6c\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x2a\x00\x03\x00\x01\x80\x7a\x01\x01\x80";
 $obj->dom = new DOMDocument;
 $obj->xml = new SimpleXMLElement('<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>');
 $obj->afile = fopen(__FILE__, 'r');
@@ -85,19 +89,19 @@ $obj->call_self = $obj;
 $obj->call_closure = function($a) {};
 $obj->call_closure_ref = $obj->call_closure;
 // $obj->closure_refer = $obj->call_closure;
-$obj->call_inst_meth = array($obj, 'myFn');
+$obj->call_inst_meth = [$obj, 'myFn'];
 $obj->call_static_str = 'lib::myFn';
-$obj->call_static_arr = array('lib' ,'myFn');
-$obj->call_static_par = array('lib' ,'parent::myFn');
+$obj->call_static_arr = ['lib' ,'myFn'];
+$obj->call_static_par = ['lib' ,'parent::myFn'];
 $obj->notfn = 'pi';		// global functions are excluded in favor of not mis-interpreting strings
 
 $sub = new stdClass;
 $sub->a = 'moo';
 $sub->b = false;
-$sub->c = array('hello', 'world', 2.98, null);
+$sub->c = ['hello', 'world', 2.98, null];
 $sub->d = "75";
 
-$obj->json_arr_str = json_encode(array(true,false,null,$sub));
+$obj->json_arr_str = json_encode([true,false,null,$sub]);
 $obj->json_obj_str = json_encode($sub);
 $obj->xml_str = '<?xml version="1.0" encoding="utf-8"?><root><moo attr="myAttribute">f</moo><moo2>g</moo2><sss>55.9</sss></root>';
 /*
@@ -115,3 +119,8 @@ $obj->arr1 = &$obj->arr0;
 $obj->arr3 = ['a','b','c'];
 
 $obj->arr3[] = &$obj->arr3;
+
+$obj->sparse = [
+	7	=> 'sss',
+	100	=> 'ddd',
+];

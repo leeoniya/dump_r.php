@@ -1,21 +1,22 @@
 <?php
 
 namespace dump_r;
-use dump_r\Type, dump_r\Rend;
+use dump_r\Type;
+use dump_r\Node;
 
 class Core {
 	public static function dump_r(&$raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
-		$root = Type::fact($raw, $depth);
+		$root = Type::fact($raw, [], $depth);
 
 		// remove array recursion detection keys from orig
 		foreach(Type::$dic as $key2 => &$raw_ref)
 			if (is_array($raw_ref))
-				unset($raw_ref[Type\Array0::$ref_key]);
+				unset($raw_ref[Node\Array0::$ref_key]);
 
 
 		self::cleanArrRefTags($root);
 
-		Type::$dic = array();
+		Type::$dic = [];
 
 		// get the input arg passed to the function
 		$src = debug_backtrace();
@@ -27,9 +28,9 @@ class Core {
 		$key = $m[1];
 
 		if (PHP_SAPI == 'cli' || !$html)
-			$out = Rend::text0($src->file, $src->line, $key, $root);
+			$out = $root->text0($src->file, $src->line, $key);
 		else
-			$out = Rend::html0($src->file, $src->line, $key, $root, $expand);
+			$out = $root->html0($src->file, $src->line, $key, $expand);
 
 		if ($ret)
 			return $out;
@@ -43,99 +44,11 @@ class Core {
 	}
 
 	public static function cleanArrRefTags(&$node) {
-		if ($node instanceof Type\Array0)
-			unset($node->nodes[Type\Array0::$ref_key]);
+		if ($node instanceof Node\Array0)
+			unset($node->nodes[Node\Array0::$ref_key]);
 
 		if ($node->nodes)
 			foreach ($node->nodes as &$node)
 				self::cleanArrRefTags($node);
 	}
 }
-
-// typenode classification
-Type::hook('*', function($raw) {
-	if (is_null($raw))
-		return new CoreType('Null');
-	if (is_bool($raw))
-		return new CoreType('Boolean');
-	if (is_int($raw))
-		return new CoreType('Integer');
-	if (is_float($raw))
-		return new CoreType('Float');
-	if (is_resource($raw))
-		return new CoreType('Resource');
-	// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
-	if (is_callable($raw) && !(is_object($raw) && !($raw instanceof \Closure)) && !(is_string($raw) && function_exists($raw)))
-		return new CoreType('Function0');	// lang construct
-	if (is_string($raw))
-		return new CoreType('String');
-	if (is_array($raw))
-		return new CoreType('Array0');	// lang construct
-	if (is_object($raw))
-		return new CoreType('Object');
-
-	return new CoreType(gettype($raw));
-});
-
-// renderer classification
-Rend::hook('*', function($node) {
-	$class = explode('\\', get_class($node));
-	$class = array_slice($class, 2);
-	return implode('\\', $class);
-});
-
-Type::hook('String', function($raw) {
-	if ($raw === '') return;
-
-	if (strlen($raw) > 5 && preg_match('#[:/-]#', $raw) && ($ts = strtotime($raw)) !== false)
-		return new CoreType('Datetime', $ts);
-
-	// SQL
-	if (strpos($raw, 'SELECT')   === 0 ||
-		strpos($raw, 'INSERT')   === 0 ||
-		strpos($raw, 'UPDATE')   === 0 ||
-		strpos($raw, 'DELETE')   === 0 ||
-		strpos($raw, 'BEGIN')    === 0 ||
-		strpos($raw, 'COMMIT')   === 0 ||
-		strpos($raw, 'ROLLBACK') === 0
-		/* sql_extended
-		strpos($raw, 'CREATE')   === 0 ||
-		strpos($raw, 'DROP')     === 0 ||
-		strpos($raw, 'TRUNCATE') === 0 ||
-		strpos($raw, 'ALTER')    === 0 ||
-		strpos($raw, 'DESCRIBE') === 0 ||
-		strpos($raw, 'EXPLAIN')  === 0 ||
-		strpos($raw, 'SHOW')     === 0 ||
-		strpos($raw, 'GRANT')    === 0 ||
-		strpos($raw, 'REVOKE')   === 0
-		*/
-	) return new CoreType('SQL');
-
-	// JSON
-	if ($raw{0} == '{' && $json = json_decode($raw))
-		return new CoreType('JSON\\Object', $json);
-	if ($raw{0} == '[' && $json = json_decode($raw))
-		return new CoreType('JSON\\Array0', $json);
-	// jsonH
-
-	// XML
-	if (substr($raw, 0, 5) == '<?xml') {
-		// strip namespaces
-		$raw = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $raw));
-
-		if ($xml = simplexml_load_string($raw))
-			return new CoreType('XML', $xml);
-		// XML\Array0
-		// XML\Object
-	}
-});
-
-Type::hook('Resource', function($raw, $intr = null) {
-	$type = get_resource_type($raw);		// this is valuable for other resources
-
-	switch ($type) {
-		case 'stream':
-			$meta = stream_get_meta_data($raw);
-			return new CoreType('Stream', $meta);
-	}
-});

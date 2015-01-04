@@ -1,11 +1,11 @@
 <?php
 
-namespace dump_r\Rend\String;
-use dump_r\Rend\String;
+namespace dump_r\Node\String;
+use dump_r\Node\String;
 
 class Datetime extends String {
-	public function get_len($node) {
-		$ts = strtotime($node->raw);
+	public function get_len() {
+		$ts = strtotime($this->raw);
 		return $this->rel_date($ts);
 	}
 
