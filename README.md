@@ -142,7 +142,7 @@ Type::hook('String\\JSON\\Object', function($raw, Type $type, $path) {
 
 Using the same `Type` hooks (introduced above) allows you to modify additional aspects of the renderer and iterator.
 
-**Hide specific nodes based on their properties or path in the hierarchy**
+**Skip specific nodes based on their properties or path in the hierarchy**
 
 ```php
 // prevent anything keyd under 'xxx' from dumping

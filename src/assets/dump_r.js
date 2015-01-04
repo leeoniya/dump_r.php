@@ -59,5 +59,22 @@
 		}
 	}
 
+	function toggleAltVal(e) {
+		if (e.which != 1 || e.target.className.indexOf("val") == -1) return;
+
+		var val2 = e.target.getAttribute('data-val');
+
+		if (val2 !== null) {
+			val2 = val2.replace(/\\\\n/g, "\n");
+			var oldVal = e.target.textContent.replace(/\n/g, "\\\\n");
+			e.target.setAttribute("data-val", oldVal);
+			e.target.textContent = val2;
+		}
+
+		e.preventDefault();
+	}
+
 	document.addEventListener("click", toggleHandler, false);
+
+	document.addEventListener("dblclick", toggleAltVal, false);
 })();

@@ -18,6 +18,10 @@ trait Rend {
 		return (string)$this->raw;
 	}
 
+	public function disp_val2() {
+		return null;
+	}
+
 	protected static function vfy_sql_pretty_deps() {
 		if (self::$sql_pretty && !class_exists('\SqlFormatter')) {
 			self::$sql_pretty = false;
@@ -87,6 +91,9 @@ trait Rend {
 
 		$val = htmlspecialchars($this->disp_val(), ENT_NOQUOTES);
 
+		$val2 = $this->disp_val2();
+		$val2 = $val2 !== null ? ' data-val="' . str_replace("\n", '\\\\n', htmlspecialchars($val2, ENT_NOQUOTES)) . '"' : '';
+
 		// trailing newlines dont render in <pre>, so repeat them
 		$val = preg_replace('/(\r\n|\r|\n)$/', '$1$1', $val);
 
@@ -95,7 +102,7 @@ trait Rend {
 		else if ($this->id)
 			$val = "<a name=\"{$this->id}\">{$val}</a>";
 
-		$buf .= '<div class="val">' . $val . '</div>';
+		$buf .= "<div class=\"val\"{$val2}>" . $val . '</div>';
 
 		if ($this->len)
 			$buf .= '<div class="len">' . htmlspecialchars($this->len, ENT_NOQUOTES) . '</div>';
