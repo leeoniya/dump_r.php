@@ -46,6 +46,10 @@ There are also two modifier keys that can be used to control how the node expand
 2. Hold `Ctrl` while toggling will expand/collapse all siblings after that node also. This is useful if you have an array of objects/arrays and want to expand all of them to one level simultaneously by clicking just the first one in the group. It works well for deep, complex objects.
 3. `Shift` and `Ctrl` can be used together.
 
+Double-clicking binary strings will toggle them between mixed hex/ascii and hex-only representations:
+
+![binary_toggle](https://github.com/leeoniya/dump_r.php/raw/master/test/binary_toggle.gif)
+
 Some types of strings can be pretty-printed and additonal rendering options can be tweaked (shown with defaults):
 
 ```php
