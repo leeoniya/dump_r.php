@@ -8,10 +8,12 @@ class Binary extends String {
 
 	public function disp_val() {
 		$str = implode('', array_map(function($byte) {
-			if (preg_match('/[\r\n\t ]/', $byte))
-				return str_replace([" ","\t","\r","\n"], ['  ','\t','\r','\n'], $byte);
-			else if (ctype_graph($byte))		// replace \r\n\t?
+			// printable ascii chars + space
+			if (preg_match('/[ -~]/', $byte))
 				return str_pad($byte, 2, ' ', STR_PAD_RIGHT);
+			// other common whitespace
+			if (preg_match('/[\r\n\t]/', $byte))
+				return str_replace(["\t","\r","\n"], ['\t','\r','\n'], $byte);
 
 			return str_pad(dechex(ord($byte)), 2, '0', STR_PAD_LEFT);
 		}, str_split($this->raw)));
