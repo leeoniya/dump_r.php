@@ -150,7 +150,7 @@ trait Rend {
 		$buf .= '<th></th>';
 		$buf .= '</tr>';
 		foreach ($this->nodes as $i => $row) {
-			$class = $this->html_css_class(2, 1);
+			$class = $row->html_css_class(2, 1);
 			$buf .= '<tr class="' . implode(' ', $class) . '">';
 			$buf .= "<th class=\"key\">{$i}</th>";
 			foreach ($row->nodes as $k => $node) {
