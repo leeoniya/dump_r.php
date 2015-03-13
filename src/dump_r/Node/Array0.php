@@ -20,7 +20,12 @@ class Array0 extends Node {
 	}
 
 	public function get_len() {
-		return count($this->nodes);
+		$len = count($this->nodes);
+
+		if (isset($this->raw[self::$ref_key]))
+			$len -= 1;
+
+		return $len;
 	}
 
 	public function get_nodes() {
