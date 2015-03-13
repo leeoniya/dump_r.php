@@ -12,8 +12,8 @@ class Binary extends String {
 			if (preg_match('/[ -~]/', $byte))
 				return str_pad($byte, 2, ' ', STR_PAD_RIGHT);
 			// other common whitespace
-			if (preg_match('/[\r\n\t]/', $byte))
-				return str_replace(["\t","\r","\n"], ['\t','\r','\n'], $byte);
+			if (preg_match('/[\r\n\t\f]/', $byte))
+				return str_replace(["\t","\r","\n","\f"], ['\t','\r','\n','\f'], $byte);
 
 			return str_pad(dechex(ord($byte)), 2, '0', STR_PAD_LEFT);
 		}, str_split($this->raw)));
