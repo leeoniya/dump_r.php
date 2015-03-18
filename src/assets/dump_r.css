@@ -47,7 +47,8 @@
 
 .dump_r table tr > * {
 	padding: 1px 5px;
-	white-space: nowrap;
+	white-space: pre;
+	vertical-align: top;
 }
 
 .dump_r table tr > *:last-child {
