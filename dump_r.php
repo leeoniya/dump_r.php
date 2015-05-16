@@ -45,7 +45,12 @@ Type::hook('*', function($raw, Type $type, $path) {
 Type::hook('String', function($raw, Type $type, $path) {
 	if ($raw === '')
 		return;
-	else if (preg_match('#[^[:print:]\r\n\t]#', $raw))
+//	http://stackoverflow.com/questions/9545336/php-match-control-characters-but-not-whitespace/9545636#9545636
+//	http://stackoverflow.com/questions/1497885/remove-control-characters-from-php-string/23066553#23066553
+//	http://www.regular-expressions.info/unicode.html#category
+//	http://php.net/manual/en/regexp.reference.unicode.php
+	$nonprint = preg_match('/[^\PC\s]/u', $raw);
+	if ($nonprint == 1 || $nonprint === false)
 		$type->class[] = 'Binary';
 	else if (strlen($raw) > 5 && preg_match('#[:/-]#', $raw) && ($ts = strtotime($raw)) !== false) {
 		$type->class[] = 'Datetime';

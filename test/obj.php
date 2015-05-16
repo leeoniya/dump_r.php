@@ -124,3 +124,9 @@ $obj->sparse = [
 	7	=> 'sss',
 	100	=> 'ddd',
 ];
+
+$obj->uni_str = "ру́сский язы́к, russky yazyk, pronounced [ˈruskʲɪj jɪˈzɨk]\t\r\n\v\fabc 网络";
+$obj->bin_str = "\x03\x00\x01\xF5";
+$obj->uni_bin = $obj->uni_str . $obj->bin_str;
+$obj->rus_str = "энцикло педии a b\tc";
+$obj->rus_bin = $obj->rus_str . $obj->bin_str;

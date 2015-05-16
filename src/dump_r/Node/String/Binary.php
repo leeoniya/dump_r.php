@@ -7,31 +7,59 @@ class Binary extends String {
 	const BYTES_PER_LINE = 32;
 
 	public function disp_val() {
-		$str = implode('', array_map(function($byte) {
-			// printable ascii chars + space
-			if (preg_match('/[ -~]/', $byte))
-				return str_pad($byte, 2, ' ', STR_PAD_RIGHT);
-			// other common whitespace
-			if (preg_match('/[\r\n\t\f]/', $byte))
-				return str_replace(["\t","\r","\n","\f"], ['\t','\r','\n','\f'], $byte);
+		if (extension_loaded('mbstring'))
+			$chars = self::mb_split($this->raw);
+		else {
+			$chars = preg_split('/(?<!^)(?!$)/u', $this->raw);	// buggy
+			if (strlen($chars[0]) > 2)
+				trigger_error("Binary string may have been improperly split; 'mbstring' extension is not enabled");
+		}
 
-			return str_pad(dechex(ord($byte)), 2, '0', STR_PAD_LEFT);
-		}, str_split($this->raw)));
+		$cells = array_map(function($chr) {
+			// whitespace, excluding space
+			if (preg_match('/[\t\r\n\v\f]/u', $chr))
+				return str_replace(["\t","\r","\n","\v","\f"], ['\t','\r','\n','\v','\f'], $chr);
+			// printable chars + space
+			if (preg_match('/\P{C}/u', $chr))
+				return str_pad($chr, 2, ' ', STR_PAD_RIGHT);
 
-		return $this->fmt_wrap($str);
+			return str_pad(dechex(ord($chr)), 2, '0', STR_PAD_LEFT);
+		}, $chars);
+
+		return $this->fmt_wrap($cells);
 	}
 
 	public function disp_val2() {
-		$str = bin2hex($this->raw);
-
-		return $this->fmt_wrap($str);
+		$str = unpack('H*', $this->raw);
+		return $this->fmt_wrap(str_split($str[1], 2));
 	}
 
-	protected function fmt_wrap($str) {
-		$str = chunk_split($str, 2, ' ');
-		$str = chunk_split($str, self::BYTES_PER_LINE * 3, "\n");
-		$str = preg_replace('/ +$/m', '', $str);
+	protected function fmt_wrap($cells) {
+		$out = [];
+		$line = [];
+		$i = -1;
+		$len = count($cells);
+		while (++$i < $len) {
+			if (($i+1) % self::BYTES_PER_LINE == 0) {
+				$out[] = implode(' ', $line);
+				$line = [];
+			}
+			$line[] = $cells[$i];
+		}
 
-		return rtrim($str);
+		if (!empty($line))
+			$out[] = implode(' ', $line);
+
+		return implode("\n", $out);
+	}
+
+	public static function mb_split($string) {
+		$strlen = mb_strlen($string);
+		while ($strlen) {
+			$array[] = mb_substr($string,0,1,"UTF-8");
+			$string = mb_substr($string,1,$strlen,"UTF-8");
+			$strlen = mb_strlen($string);
+		}
+		return $array;
 	}
 }

@@ -25,7 +25,7 @@ class Core {
 		$file = file($src->file);
 		$line = $file[$src->line - 1];
 		preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
-		$key = $m[1];
+		$key = $m[1];		// fixme!
 
 		if (PHP_SAPI == 'cli' || !$html)
 			$out = $root->text0($src->file, $src->line, $key);
