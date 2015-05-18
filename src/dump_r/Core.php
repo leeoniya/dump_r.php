@@ -23,9 +23,16 @@ class Core {
 		$idx = strpos($src[0]['file'], 'dump_r.php') ? 1 : 0;
 		$src = (object)$src[$idx];
 		$file = file($src->file);
-		$line = $file[$src->line - 1];
-		preg_match('/dump_r\((.+?)(?:,|\)(;|\?>))/', $line, $m);
-		$key = $m[1];		// fixme!
+
+		$i = 1;
+		do {
+			$line = $file[$src->line - $i++];
+		} while (strpos($line, 'dump_r') === false);
+
+		preg_match('/dump_r\((.+?)\)?(?:$|;|\?>)/', $line, $m);
+		$key = $m[1];
+
+		$key = trim(explode(',', $key)[0]);
 
 		if (PHP_SAPI == 'cli' || !$html)
 			$out = $root->text0($src->file, $src->line, $key);
