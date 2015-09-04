@@ -1,9 +1,9 @@
 <?php
 
-namespace dump_r\Node\Resource;
-use dump_r\Node\Resource;
+namespace dump_r\Node\_Resource;
+use dump_r\Node\_Resource;
 
-class Stream extends Resource {
+class _Stream extends _Resource {
 /*
 	public function disp_val() {
 		$meta = stream_get_meta_data($this->raw);

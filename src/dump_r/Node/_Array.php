@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node, dump_r\Core, dump_r\Type;
 
-class Array0 extends Node {
+class _Array extends Node {
 	static $ref_key = '__ref_uid';
 
 	public function chk_ref() {

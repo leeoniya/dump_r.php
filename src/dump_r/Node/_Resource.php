@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node;
 
-class Resource extends Node {
+class _Resource extends Node {
 /*
 	public function get_id() {
 		return intval($this->raw);

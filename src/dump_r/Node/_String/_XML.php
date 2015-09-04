@@ -1,10 +1,10 @@
 <?php
 
-namespace dump_r\Node\String;
-use dump_r\Node\String;
+namespace dump_r\Node\_String;
+use dump_r\Node\_String;
 use dump_r\Rend;
 
-class XML extends String {
+class _XML extends _String {
 	public function get_nodes() {
 		return (array)$this->inter;
 	}

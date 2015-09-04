@@ -21,6 +21,6 @@
     },
     "autoload": {
         "files": ["dump_r.php"],
-        "psr-0": {"dump_r": "src/"}
+        "psr-4": {"dump_r\\": "src/dump_r"}
     }
 }

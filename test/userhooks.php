@@ -29,7 +29,7 @@ $stuff = [
 
 
 // exif data
-Type::hook('String', function($raw, Type $type, $path) {
+Type::hook('_String', function($raw, Type $type, $path) {
 	// match path-esque strings (containing '/' or '\') trailed by an
 	// EXIF-capable image extension, then verify this file actually exists
 	if (preg_match('#[\/]+.+\.(jpe?g|tiff?)$#', $raw) && is_file($raw)) {
@@ -46,7 +46,7 @@ Type::hook('String', function($raw, Type $type, $path) {
 
 
 // csv records
-Type::hook('String', function($raw, Type $type, $path) {
+Type::hook('_String', function($raw, Type $type, $path) {
 	if (preg_match('#[\/]+.+\.csv$#', $raw) && is_file($raw)) {
 
 		$type->types	= ['csv'];
@@ -69,7 +69,7 @@ function csv2array($file) {
 }
 
 // prevent arrays keyed under 'c' from dumping sub-nodes
-Type::hook('Array0', function($raw, Type $type, $path) {
+Type::hook('_Array', function($raw, Type $type, $path) {
 	if (end($path) === 'c')
 		$type->depth = 1;
 

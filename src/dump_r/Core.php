@@ -11,7 +11,7 @@ class Core {
 		// remove array recursion detection keys from orig
 		foreach(Type::$dic as $key2 => &$raw_ref)
 			if (is_array($raw_ref))
-				unset($raw_ref[Node\Array0::$ref_key]);
+				unset($raw_ref[Node\_Array::$ref_key]);
 
 
 		self::cleanArrRefTags($root);
@@ -51,8 +51,8 @@ class Core {
 	}
 
 	public static function cleanArrRefTags(&$node) {
-		if ($node instanceof Node\Array0)
-			unset($node->nodes[Node\Array0::$ref_key]);
+		if ($node instanceof Node\_Array)
+			unset($node->nodes[Node\_Array::$ref_key]);
 
 		if ($node->nodes)
 			foreach ($node->nodes as &$node)

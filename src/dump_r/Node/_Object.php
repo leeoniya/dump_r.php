@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node;
 
-class Object extends Node {
+class _Object extends Node {
 	const VIS_PUBL = 2;
 	const VIS_PROT = 1;
 	const VIS_PRIV = 0;

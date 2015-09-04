@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node;
 
-class String extends Node {
+class _String extends Node {
 	public function chk_ref() {
 		return false;
 	}

@@ -1,9 +1,10 @@
 <?php
 
 if (!spl_autoload_functions()) {
-	require 'lib/SplClassLoader.php';
-	$classLoader = new SplClassLoader('dump_r', __DIR__ . '/src');
-	$classLoader->register();
+	require 'lib/PSR4_Loader.php';
+	$loader = new Psr4AutoloaderClass;
+	$loader->register();
+	$loader->addNamespace('dump_r\\', __DIR__ . '/src/dump_r');
 }
 
 use dump_r\Core;
@@ -18,31 +19,31 @@ if (!function_exists('dump_r')) {
 // typenode classification
 Type::hook('*', function($raw, Type $type, $path) {
 	if (is_null($raw))
-		$type->class[] = 'Null';
+		$type->class[] = '_Null';
 	else if (is_bool($raw))
-		$type->class[] = 'Boolean';
+		$type->class[] = '_Boolean';
 	else if (is_int($raw))
-		$type->class[] = 'Integer';
+		$type->class[] = '_Integer';
 	else if (is_float($raw))
-		$type->class[] = 'Float';
+		$type->class[] = '_Float';
 	else if (is_resource($raw))
-		$type->class[] = 'Resource';
+		$type->class[] = '_Resource';
 	// avoid detecting strings with names of global functions and __invoke-able objects as callbacks
 	else if (is_callable($raw) && !(is_object($raw) && !($raw instanceof \Closure)) && !(is_string($raw) && function_exists($raw)))
-		$type->class[] = 'Function0';	// lang construct
+		$type->class[] = '_Function';
 	else if (is_string($raw))
-		$type->class[] = 'String';
+		$type->class[] = '_String';
 	else if (is_array($raw))
-		$type->class[] = 'Array0';	// lang construct
+		$type->class[] = '_Array';
 	else if (is_object($raw))
-		$type->class[] = 'Object';
+		$type->class[] = '_Object';
 	else
-		$type->class[] = gettype($raw);
+		$type->class[] = '_' . gettype($raw);
 
 	return $type;
 });
 
-Type::hook('String', function($raw, Type $type, $path) {
+Type::hook('_String', function($raw, Type $type, $path) {
 	if ($raw === '')
 		return;
 //	http://stackoverflow.com/questions/9545336/php-match-control-characters-but-not-whitespace/9545636#9545636
@@ -51,12 +52,12 @@ Type::hook('String', function($raw, Type $type, $path) {
 //	http://php.net/manual/en/regexp.reference.unicode.php
 	$nonprint = preg_match('/[^\PC\s]/u', $raw);
 	if ($nonprint == 1 || $nonprint === false)
-		$type->class[] = 'Binary';
+		$type->class[] = '_Binary';
 	else if (strlen($raw) > 5 && preg_match('#[:/-]#', $raw) && ($ts = strtotime($raw)) !== false) {
-		$type->class[] = 'Datetime';
+		$type->class[] = '_Datetime';
 		$type->inter = $ts;
 	}
-	// SQL
+	// _SQL
 	else if (
 		strpos($raw, 'SELECT')   === 0 ||
 		strpos($raw, 'INSERT')   === 0 ||
@@ -77,42 +78,42 @@ Type::hook('String', function($raw, Type $type, $path) {
 		strpos($raw, 'REVOKE')   === 0
 		*/
 	)
-		$type->class[] = 'SQL';
+		$type->class[] = '_SQL';
 
-	// JSON
+	// _JSON
 	else if ($raw{0} == '{' && $json = json_decode($raw)) {
-		$type->class[] = 'JSON\Object';
+		$type->class[] = '_JSON\_Object';
 		$type->inter = $json;
 	}
 	else if ($raw{0} == '[' && $json = json_decode($raw)) {
-		$type->class[] = 'JSON\Array0';
+		$type->class[] = '_JSON\_Array';
 		$type->inter = $json;
 	}
 	// jsonH
 
-	// XML
+	// _XML
 	else if (substr($raw, 0, 5) == '<?xml') {
 		// strip namespaces
 		$raw = preg_replace('/<(\/?)[\w-]+?:/', '<$1', preg_replace('/\s+xmlns:.*?=".*?"/', '', $raw));
 
 		if ($xml = simplexml_load_string($raw)) {
-			$type->class[] = 'XML';
+			$type->class[] = '_XML';
 			$type->inter = $xml;
 		}
-		// XML\Array0
-		// XML\Object
+		// _XML\\_Array
+		// _XML\\_Object
 	}
 
 	return $type;
 });
 
-Type::hook('Resource', function($raw, Type $type, $path) {
+Type::hook('_Resource', function($raw, Type $type, $path) {
 	$kind = get_resource_type($raw);		// this is valuable for other resources
 
 	switch ($kind) {
 		case 'stream':
 			$meta = stream_get_meta_data($raw);
-			$type->class[] = 'Stream';
+			$type->class[] = '_Stream';
 			$type->inter = $meta;
 	}
 

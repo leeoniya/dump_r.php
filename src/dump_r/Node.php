@@ -69,8 +69,8 @@ class Node {
 	// TODO: get_type() that allows each class to only return own type in chain
 	public function get_typ() {
 		$path = strtolower(get_class($this));
-		// replace language-constructs
-		$types = strtr($path,['array0'=>'array','function0'=>'function']);
+
+		$types = str_replace('\\_', '\\', $path);
 
 		return array_slice(explode('\\', $types), 2);
 	}

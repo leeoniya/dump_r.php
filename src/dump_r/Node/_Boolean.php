@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node;
 
-class Boolean extends Node {
+class _Boolean extends Node {
 	public function chk_ref() {
 		return false;
 	}

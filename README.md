@@ -96,7 +96,7 @@ use dump_r\Type;
 
 // Example 1: dump EXIF data with image filepath strings
 
-Type::hook('String', function($raw, Type $type, $path) {
+Type::hook('_String', function($raw, Type $type, $path) {
 	// match path-esque strings (containing '/' or '\') trailed by an
 	// EXIF-capable image extension, then verify this file actually exists
 	if (preg_match('#[\/]+.+\.(jpe?g|tiff?)$#', $raw) && is_file($raw)) {
@@ -113,7 +113,7 @@ Type::hook('String', function($raw, Type $type, $path) {
 
 // Example 2: dump CSV records with csv filepath strings
 
-Type::hook('String', function($raw, Type $type, $path) {
+Type::hook('_String', function($raw, Type $type, $path) {
 	if (preg_match('#[\/]+.+\.csv$#', $raw) && is_file($raw)) {
 
 		$type->types	= ['csv'];
@@ -137,7 +137,7 @@ function csv2array($file) {
 All core types (see `src/dump_r/Node` dir) can be hooked by their fully namespaced names. For example, if you wanted to further subtype a JSON object string, you would use
 
 ```php
-Type::hook('String\\JSON\\Object', function($raw, Type $type, $path) {
+Type::hook('_String\\_JSON\\_Object', function($raw, Type $type, $path) {
 	// code here
 });
 ```
@@ -160,7 +160,7 @@ Type::hook('*', function($raw, Type $type, $path) {
 
 ```php
 // prevent arrays keyed under 'c' from dumping sub-nodes
-Type::hook('Array0', function($raw, Type $type, $path) {
+Type::hook('_Array', function($raw, Type $type, $path) {
 	if (end($path) === 'c')
 		$type->depth = 1;
 

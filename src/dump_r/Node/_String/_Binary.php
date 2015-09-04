@@ -1,9 +1,9 @@
 <?php
 
-namespace dump_r\Node\String;
-use dump_r\Node\String;
+namespace dump_r\Node\_String;
+use dump_r\Node\_String;
 
-class Binary extends String {
+class _Binary extends _String {
 	const BYTES_PER_LINE = 32;
 
 	public function disp_val() {

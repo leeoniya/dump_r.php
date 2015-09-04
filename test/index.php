@@ -44,6 +44,6 @@
 		<h2>native var_dump()</h2>
 		<pre><? var_dump($obj); ?></pre>
 
-		<a href="https://github.com/leeoniya/dump_r.php"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png" alt="Fork me on GitHub"></a>
+		<a href="https://github.com/leeoniya/dump_r.php"><img style="position: absolute; top: 0; right: 0; border: 0;" src="github_fork.png" alt="Fork me on GitHub"></a>
 	</body>
 </html>

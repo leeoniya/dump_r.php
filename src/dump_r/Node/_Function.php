@@ -3,7 +3,7 @@
 namespace dump_r\Node;
 use dump_r\Node;
 
-class Function0 extends Node {
+class _Function extends Node {
 	public function get_sub() {
 		$sub = [];
 
