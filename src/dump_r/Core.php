@@ -19,7 +19,7 @@ class Core {
 		Type::$dic = [];
 
 		// get the input arg passed to the function
-		$src = debug_backtrace();
+		$src = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		$idx = strpos($src[0]['file'], 'dump_r.php') ? 1 : 0;
 		$src = (object)$src[$idx];
 		$file = file($src->file);
