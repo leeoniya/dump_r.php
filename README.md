@@ -57,6 +57,7 @@ dump_r\Rend::$xml_pretty	= false;	// pretty-print xml strings
 dump_r\Rend::$json_pretty	= false;	// pretty-print json strings
 dump_r\Rend::$sql_pretty	= false;	// pretty-print sql strings (requires https://github.com/jdorn/sql-formatter)
 dump_r\Rend::$recset_tbls	= true;		// recordset detection & table-style output
+dump_r\Rend::$trace_info	= true;		// show file & line where dump_r was invoked
 dump_r\Rend::$val_space		= 4;		// number of spaces between key and value columns (affects text output only, not html)
 ```
 

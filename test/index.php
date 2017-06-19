@@ -5,6 +5,7 @@
 //	dump_r\Rend::$sql_pretty = true;
 //	dump_r\Rend::$xml_pretty = true;
 //	dump_r\Rend::$json_pretty = true;
+//	dump_r\Rend::$trace_info = false;
 
 ?><!DOCTYPE html>
 <html>

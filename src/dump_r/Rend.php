@@ -13,6 +13,7 @@ trait Rend {
 	public static $sql_pretty	= false;
 	public static $json_pretty	= false;
 	public static $recset_tbls	= true;
+	public static $trace_info	= true;
 
 	public function disp_val() {
 		return (string)$this->raw;
@@ -46,7 +47,9 @@ trait Rend {
 		$dump_id = 'dump-' . rand(100,999);
 
 		$buf .= '<pre class="dump_r" id="' . $dump_id . '">';
-		$buf .= "<div class=\"file-line\">{$file} (line {$line})</div>";
+
+		if (self::$trace_info)
+			$buf .= "<div class=\"file-line\">{$file} (line {$line})</div>";
 
 		$buf .= $this->html($key, 2, $expand, true);
 
@@ -205,10 +208,12 @@ trait Rend {
 
 		$buf = '';
 
-		$loc = "{$file} (line {$line})";
-		$loc .= "\n" . str_repeat('-', strlen($loc)) . "\n";
+		if (self::$trace_info) {
+			$loc = "{$file} (line {$line})";
+			$loc .= "\n" . str_repeat('-', strlen($loc)) . "\n";
 
-		$buf .= $loc;
+			$buf .= $loc;
+		}
 
 		$buf .= $this->text($key);
 
