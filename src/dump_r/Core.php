@@ -5,7 +5,7 @@ use dump_r\Type;
 use dump_r\Node;
 
 class Core {
-	public static function dump_r(&$raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
+	public static function dump_r($file, $line, $key, &$raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
 		$root = Type::fact($raw, [], $depth);
 
 		// remove array recursion detection keys from orig
@@ -18,26 +18,10 @@ class Core {
 
 		Type::$dic = [];
 
-		// get the input arg passed to the function
-		$src = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-		$idx = strpos($src[0]['file'], 'dump_r.php') ? 1 : 0;
-		$src = (object)$src[$idx];
-		$file = file($src->file);
-
-		$i = 1;
-		do {
-			$line = $file[$src->line - $i++];
-		} while (strpos($line, 'dump_r') === false);
-
-		preg_match('/dump_r\((.+?)\)?(?:$|;|\?>)/', $line, $m);
-		$key = $m[1];
-
-		$key = trim(explode(',', $key)[0]);
-
 		if (PHP_SAPI == 'cli' || !$html)
-			$out = $root->text0($src->file, $src->line, $key);
+			$out = $root->text0($file, $line, $key);
 		else
-			$out = $root->html0($src->file, $src->line, $key, $expand);
+			$out = $root->html0($file, $line, $key, $expand);
 
 		if ($ret)
 			return $out;

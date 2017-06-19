@@ -12,7 +12,23 @@ use dump_r\Type;
 
 if (!function_exists('dump_r')) {
 	function dump_r($raw, $ret = false, $html = true, $depth = 1e3, $expand = 1e3) {
-		return Core::dump_r($raw, $ret, $html, $depth, $expand);
+		// get the input arg passed to the function
+		$src = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+		$idx = strpos($src[0]['file'], 'dump_r.php') ? 1 : 0;
+		$src = (object)$src[$idx];
+		$file = file($src->file);
+
+		$i = 1;
+		do {
+			$line = $file[$src->line - $i++];
+		} while (strpos($line, 'dump_r') === false);
+
+		preg_match('/dump_r\((.+?)\)?(?:$|;|\?>)/', $line, $m);
+		$key = $m[1];
+
+		$key = trim(explode(',', $key)[0]);
+
+		return Core::dump_r($src->file, $src->line, $key, $raw, $ret, $html, $depth, $expand);
 	}
 }
 
