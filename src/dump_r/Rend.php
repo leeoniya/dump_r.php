@@ -304,4 +304,19 @@ trait Rend {
 
 		return $ext;
 	}
+
+    public function raw0($file, $line, $key, $expand = 1e3) {
+      self::vfy_sql_pretty_deps();
+
+      return array(
+        'file' => $file,
+        'line' => $line,
+        'data' => $this->raw($key)
+      );
+    }
+
+    public function raw($key, $init = false) {
+        self::$key_width = max(self::$key_width, strlen($key));
+		return $this->nodes;
+    }
 }
